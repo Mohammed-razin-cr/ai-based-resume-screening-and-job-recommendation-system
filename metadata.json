@@ -1,0 +1,8 @@
+{
+  "name": "AI Resume Intelligence Platform",
+  "description": "Enterprise-grade SaaS platform for AI-powered resume screening, ATS compatibility analysis, skill gap assessment, interactive career roadmaps, real-time job vacancy matching, mock interviews, and professional profile optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

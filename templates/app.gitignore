@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+resume_app.db
+.env
+venv/
+.env.local
+node_modules/
+dist/
+build/

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Resume Intelligence Platform (Flask & SQL & Pandas)</title>
+    
+    <!-- 1. Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 2. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                50: 'var(--color-slate-50)',
+                100: 'var(--color-slate-100)',
+                200: 'var(--color-slate-200)',
+                300: 'var(--color-slate-300)',
+                400: 'var(--color-slate-400)',
+                500: 'var(--color-slate-500)',
+                600: 'var(--color-slate-600)',
+                700: 'var(--color-slate-700)',
+                800: 'var(--color-slate-800)',
+                900: 'var(--color-slate-900)',
+                950: 'var(--color-slate-950)',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+              display: ['Space Grotesk', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- CSS Custom Scrollbars and Transitions -->
+    <style>
+      :root {
+        --color-slate-50: #f8fafc;
+        --color-slate-100: #f1f5f9;
+        --color-slate-200: #e2e8f0;
+        --color-slate-300: #cbd5e1;
+        --color-slate-400: #94a3b8;
+        --color-slate-500: #64748b;
+        --color-slate-600: #475569;
+        --color-slate-700: #334155;
+        --color-slate-800: #1e293b;
+        --color-slate-900: #0f172a;
+        --color-slate-950: #020617;
+        --color-scrollbar-track: #0b1329;
+        --color-scrollbar-thumb: #1e293b;
+      }
+      
+      html.light {
+        --color-slate-50: #020617;
+        --color-slate-100: #0f172a;
+        --color-slate-200: #1e293b;
+        --color-slate-300: #334155;
+        --color-slate-400: #475569;
+        --color-slate-500: #64748b;
+        --color-slate-600: #94a3b8;
+        --color-slate-700: #cbd5e1;
+        --color-slate-800: #e2e8f0;
+        --color-slate-900: #f1f5f9;
+        --color-slate-950: #ffffff;
+        --color-scrollbar-track: #f1f5f9;
+        --color-scrollbar-thumb: #cbd5e1;
+      }
+
+      * {
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--color-scrollbar-track);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-scrollbar-thumb);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-slate-400);
+      }
+      .custom-blur {
+        backdrop-filter: blur(12px);
+      }
+      
+      @media print {
+        body {
+          background: #ffffff !important;
+          color: #000000 !important;
+        }
+        body * {
+          display: none !important;
+        }
+        #resume-print-area, #resume-print-area * {
+          display: block !important;
+          visibility: visible !important;
+        }
+        #resume-print-area {
+          display: block !important;
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          min-height: 100% !important;
+          margin: 0 !important;
+          padding: 20px !important;
+          background: white !important;
+          color: black !important;
+          box-shadow: none !important;
+          border: none !important;
+        }
+        /* Specific elements inside resume layout that should display inside print */
+        #resume-print-area .flex {
+          display: flex !important;
+        }
+        #resume-print-area .grid {
+          display: grid !important;
+        }
+        #resume-print-area .inline-flex {
+          display: inline-flex !important;
+        }
+        #resume-print-area .hidden-print {
+          display: none !important;
+        }
+      }
+    </style>
+
+    <!-- 3. React and ReactDOM (Production Minified) from Fast jsDelivr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- 4. Lucide Icons (Minified, Pinned) -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+
+    <!-- 5. Babel Standalone (Minified, Pinned for fast browser compiling) -->
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+  </head>
+  <body class="h-full font-sans antialiased text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200">
+    <!-- Root Mounting Element -->
+    <div id="root" class="h-full flex flex-col"></div>
+
+    <!-- Main Module script compiled by Babel Standalone -->
+    <script type="text/babel" data-type="module" src="/static/js/app.js"></script>
+    
+    <!-- Core layout initializer script -->
+    <script>
+      // Initialize lucide when pages load
+      window.addEventListener('load', () => {
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      });
+    </script>
+  </body>
+</html>
