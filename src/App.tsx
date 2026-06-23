@@ -6,6 +6,206 @@ import {
   X, Play, Edit3, Key, Mail, ShieldAlert, ChevronRight, LogOut, FileCode, Check, Send, Download
 } from "lucide-react";
 
+
+// ── Animated Background Particles ──────────────────────────────────────
+function AnimatedBackground() {
+  const particles = Array.from({ length: 18 }, (_, i) => ({
+    id: i,
+    left: `${5 + (i * 5.2) % 90}%`,
+    delay: `${(i * 0.7) % 8}s`,
+    duration: `${8 + (i * 1.3) % 10}s`,
+    size: `${2 + (i % 3)}px`,
+    color: i % 3 === 0 ? 'rgba(236,72,153,0.6)' : i % 3 === 1 ? 'rgba(139,92,246,0.5)' : 'rgba(244,114,182,0.4)',
+  }));
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {/* Animated gradient blobs */}
+      <div className="bg-blob-1 absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full"
+           style={{ background: 'radial-gradient(circle, rgba(219,39,119,0.12) 0%, transparent 70%)' }} />
+      <div className="bg-blob-2 absolute top-[20%] right-[-8%] w-[600px] h-[600px] rounded-full"
+           style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%)' }} />
+      <div className="bg-blob-3 absolute bottom-[-10%] left-[30%] w-[500px] h-[500px] rounded-full"
+           style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)' }} />
+      {/* Floating particles */}
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="absolute bottom-0 rounded-full"
+          style={{
+            left: p.left,
+            width: p.size,
+            height: p.size,
+            backgroundColor: p.color,
+            animation: `particle ${p.duration} ${p.delay} ease-in infinite`,
+            boxShadow: `0 0 6px ${p.color}`,
+          }}
+        />
+      ))}
+      {/* Grid overlay */}
+      <div className="absolute inset-0 opacity-[0.025]"
+           style={{ backgroundImage: 'linear-gradient(rgba(236,72,153,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(236,72,153,0.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+    </div>
+  );
+}
+
+// ── Animated 3D Orb ─────────────────────────────────────────────────────
+function Animated3DOrb() {
+  const orbRef = React.useRef<SVGSVGElement>(null);
+
+  React.useEffect(() => {
+    const el = orbRef.current;
+    if (!el) return;
+    const handleMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / rect.width;
+      const dy = (e.clientY - cy) / rect.height;
+      el.style.transform = `rotateY(${dx * 18}deg) rotateX(${-dy * 14}deg)`;
+    };
+    window.addEventListener('mousemove', handleMove);
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, []);
+
+  return (
+    <div className="animate-orb-float relative flex items-center justify-center select-none"
+         style={{ width: 320, height: 320 }}>
+      {/* Glow beneath */}
+      <div className="absolute inset-0 rounded-full"
+           style={{ background: 'radial-gradient(ellipse at 50% 120%, rgba(219,39,119,0.35) 0%, transparent 65%)', filter: 'blur(16px)' }} />
+      <svg
+        ref={orbRef}
+        viewBox="0 0 300 300"
+        width="300"
+        height="300"
+        style={{ transformStyle: 'preserve-3d', transition: 'transform 0.15s ease', willChange: 'transform' }}
+      >
+        <defs>
+          {/* Core sphere gradient */}
+          <radialGradient id="sphereGrad" cx="38%" cy="35%" r="60%">
+            <stop offset="0%" stopColor="#e879f9" stopOpacity="0.95" />
+            <stop offset="40%" stopColor="#a855f7" stopOpacity="0.85" />
+            <stop offset="75%" stopColor="#6d28d9" stopOpacity="0.80" />
+            <stop offset="100%" stopColor="#1e0533" stopOpacity="0.95" />
+          </radialGradient>
+          {/* Specular highlight */}
+          <radialGradient id="specular" cx="30%" cy="28%" r="30%">
+            <stop offset="0%" stopColor="white" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </radialGradient>
+          {/* Inner glow */}
+          <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#f0abfc" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+          </radialGradient>
+          {/* Ring gradient */}
+          <linearGradient id="ring1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#f472b6" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#c084fc" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#f472b6" stopOpacity="0.9" />
+          </linearGradient>
+          <linearGradient id="ring2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#818cf8" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.8" />
+          </linearGradient>
+          <linearGradient id="ring3Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.6" />
+            <stop offset="50%" stopColor="#d946ef" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#ec4899" stopOpacity="0.6" />
+          </linearGradient>
+          {/* Scan line clip */}
+          <clipPath id="orbClip">
+            <circle cx="150" cy="150" r="96" />
+          </clipPath>
+          <filter id="softBlur">
+            <feGaussianBlur stdDeviation="1.5" />
+          </filter>
+        </defs>
+
+        {/* Outer ambient glow ring */}
+        <circle cx="150" cy="150" r="118" fill="none" stroke="rgba(236,72,153,0.08)" strokeWidth="24" />
+        <circle cx="150" cy="150" r="105" fill="none" stroke="rgba(168,85,247,0.06)" strokeWidth="16" />
+
+        {/* Orbit Ring 1 */}
+        <g className="orb-ring-1" style={{ transformOrigin: '150px 150px' }}>
+          <ellipse cx="150" cy="150" rx="130" ry="36" fill="none" stroke="url(#ring1Grad)" strokeWidth="1.8" />
+        </g>
+        {/* Orbit Ring 2 */}
+        <g className="orb-ring-2" style={{ transformOrigin: '150px 150px' }}>
+          <ellipse cx="150" cy="150" rx="118" ry="28" fill="none" stroke="url(#ring2Grad)" strokeWidth="1.4" />
+        </g>
+        {/* Orbit Ring 3 */}
+        <g className="orb-ring-3" style={{ transformOrigin: '150px 150px' }}>
+          <ellipse cx="150" cy="150" rx="142" ry="20" fill="none" stroke="url(#ring3Grad)" strokeWidth="1.1" />
+        </g>
+
+        {/* Core sphere */}
+        <circle cx="150" cy="150" r="90" fill="url(#sphereGrad)" />
+        {/* Inner glow overlay */}
+        <circle cx="150" cy="150" r="90" fill="url(#innerGlow)" />
+        {/* Specular highlight */}
+        <circle cx="150" cy="150" r="90" fill="url(#specular)" />
+
+        {/* Latitude lines on sphere */}
+        <g clipPath="url(#orbClip)" opacity="0.15" filter="url(#softBlur)">
+          {[-55,-35,-15,5,25,45,65].map((offset, i) => (
+            <ellipse key={i} cx="150" cy={150 + offset} rx="90" ry={Math.max(4, 90 * Math.cos(Math.asin(Math.min(1, Math.abs(offset)/90))))} fill="none" stroke="white" strokeWidth="0.6" />
+          ))}
+          {/* Longitude lines */}
+          {[0,30,60,90,120,150].map((angle, i) => (
+            <ellipse key={`lon-${i}`} cx="150" cy="150" rx={6 + (i*2)} ry="90" fill="none" stroke="white" strokeWidth="0.5" transform={`rotate(${angle} 150 150)`} />
+          ))}
+        </g>
+
+        {/* Scan line effect */}
+        <g clipPath="url(#orbClip)">
+          <rect className="orb-scan" x="54" y="0" width="192" height="8"
+                fill="none" stroke="rgba(240,171,252,0.5)" strokeWidth="1" />
+        </g>
+
+        {/* Floating data dots on surface */}
+        {[
+          { cx: 185, cy: 120, r: 3, color: '#f472b6', delay: '0s' },
+          { cx: 118, cy: 175, r: 2.5, color: '#a78bfa', delay: '0.8s' },
+          { cx: 200, cy: 160, r: 2, color: '#34d399', delay: '1.6s' },
+          { cx: 105, cy: 128, r: 2, color: '#60a5fa', delay: '2.4s' },
+          { cx: 165, cy: 200, r: 3, color: '#f59e0b', delay: '3.2s' },
+        ].map((dot, i) => (
+          <circle key={i} cx={dot.cx} cy={dot.cy} r={dot.r} fill={dot.color}
+                  style={{ animation: `particleDrift ${2 + i * 0.5}s ${dot.delay} ease-in-out infinite` }}>
+            <animate attributeName="opacity" values="0.5;1;0.5" dur={`${2 + i * 0.4}s`} begin={dot.delay} repeatCount="indefinite" />
+          </circle>
+        ))}
+
+        {/* Center sparkle */}
+        <g transform="translate(150,150)">
+          <line x1="0" y1="-12" x2="0" y2="12" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+          <line x1="-12" y1="0" x2="12" y2="0" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+          <line x1="-8" y1="-8" x2="8" y2="8" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.35" />
+          <line x1="8" y1="-8" x2="-8" y2="8" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.35" />
+          <circle cx="0" cy="0" r="3" fill="white" opacity="0.9" />
+        </g>
+      </svg>
+
+      {/* Floating stat chips around the orb */}
+      <div className="absolute top-4 right-[-20px] glass-panel rounded-xl px-3 py-2 text-xs font-bold text-emerald-400 border border-emerald-500/20 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <span className="block text-[10px] text-slate-500 font-normal">ATS Score</span>
+        92/100
+      </div>
+      <div className="absolute bottom-8 left-[-24px] glass-panel rounded-xl px-3 py-2 text-xs font-bold text-pink-400 border border-pink-500/20 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+        <span className="block text-[10px] text-slate-500 font-normal">Match Rate</span>
+        87%
+      </div>
+      <div className="absolute top-1/2 left-[-32px] glass-panel rounded-xl px-3 py-2 text-xs font-bold text-purple-400 border border-purple-500/20 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+        <span className="block text-[10px] text-slate-500 font-normal">Skills</span>
+        24 Found
+      </div>
+    </div>
+  );
+}
+
 interface UserProfile {
   id: string;
   name: string;
@@ -795,12 +995,8 @@ export default function App() {
   return (
     <div className={`min-h-screen bg-[#0c020a] text-slate-100 flex ${isSidebarLayout ? "h-screen overflow-hidden" : "flex-col"} font-sans relative selection:bg-pink-500/30 selection:text-pink-200`}>
       
-      {/* Background Glow Blobs */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-pink-500/8 blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/8 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-[40%] left-[30%] w-[40%] h-[40%] rounded-full bg-rose-500/4 blur-[120px] animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
+      {/* Animated Background — particles, blobs, grid */}
+      <AnimatedBackground />
 
       {/* ------------------- NOTIFICATION TOAST BAR ------------------- */}
       {actionMessage.text && (
@@ -1176,69 +1372,79 @@ export default function App() {
               <div className="absolute top-0 left-1/4 h-72 w-72 bg-pink-600/8 rounded-full blur-3xl pointer-events-none"></div>
               <div className="absolute bottom-0 right-1/4 h-80 w-80 bg-purple-500/8 rounded-full blur-3xl pointer-events-none"></div>
 
-              <div className="max-w-4xl mx-auto text-center relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-950/20 border border-pink-500/10 text-xs text-pink-400 font-semibold mb-6">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Powered by Google Gemini AI</span>
+              <div className="max-w-7xl mx-auto relative z-10">
+                {/* Two-column layout: text left, orb right */}
+                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+                  {/* Left: text content */}
+                  <div className="flex-1 text-center lg:text-left">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-950/20 border border-pink-500/10 text-xs text-pink-400 font-semibold mb-6">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Powered by Google Gemini AI</span>
+                    </div>
+                    
+                    <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-white mb-6 leading-none">
+                      Resume Screening,<br />
+                      <span className="text-shimmer">Elevated by AI</span>
+                    </h1>
+
+                    <p className="text-lg text-slate-300 max-w-xl mb-10 font-normal leading-relaxed mx-auto lg:mx-0">
+                      Analyze resumes, calculate ATS scores, discover jobs, identify skill gaps, generate interview questions, and accelerate your career with AI.
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-8">
+                      {currentUser ? (
+                        <button 
+                          onClick={() => setActiveTab("dashboard")}
+                          className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-pink-600/25 hover:shadow-pink-600/40 hover:-translate-y-0.5"
+                        >
+                          Go to Dashboard →
+                        </button>
+                      ) : (
+                        <>
+                          <button 
+                            onClick={() => setAuthMode("register")}
+                            className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-pink-600/20 hover:-translate-y-0.5"
+                          >
+                            Get Started Free
+                          </button>
+                          <button 
+                            onClick={loginDemoAccount}
+                            className="px-8 py-4 bg-white/5 hover:bg-white/10 text-slate-200 rounded-xl font-semibold transition-all border border-pink-500/20 hover:border-pink-500/35"
+                          >
+                            Try Demo →
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Stat row */}
+                    <div className="flex gap-6 justify-center lg:justify-start text-center">
+                      {[
+                        { val: '10K+', label: 'Resumes Analyzed' },
+                        { val: '98%', label: 'ATS Accuracy' },
+                        { val: '3x', label: 'Faster Screening' },
+                      ].map((stat, i) => (
+                        <div key={i}>
+                          <p className="text-2xl font-extrabold text-white">{stat.val}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{stat.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right: 3D Orb */}
+                  <div className="flex-shrink-0 hidden md:flex items-center justify-center">
+                    <Animated3DOrb />
+                  </div>
                 </div>
-                
-                <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-none">
-                  Resume Screening, <br />
-                  <span className="text-shimmer">
-                    Elevated by AI
-                  </span>
-                </h1>
 
-                <p className="text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto mb-10 font-normal leading-relaxed">
-                  Analyze resumes, calculate ATS scores, discover jobs, identify skill gaps, generate interview questions, and accelerate your career with AI.
-                </p>
-
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  {currentUser ? (
-                    <button 
-                      onClick={() => setActiveTab("dashboard")}
-                      className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-pink-600/10 mr-2"
-                    >
-                      Enter Console Dashboard
-                    </button>
-                  ) : (
-                    <>
-                      <button 
-                        onClick={() => setAuthMode("register")}
-                        className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-pink-600/20"
-                      >
-                        Create Account
-                      </button>
-                      <button 
-                        onClick={loginDemoAccount}
-                        className="px-8 py-4 bg-[#1a0516]/65 hover:bg-[#2c0b26] text-slate-200 rounded-xl font-semibold transition-all border border-pink-500/20"
-                      >
-                        Try Demo Dashboard
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Features list bullet layout banner */}
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mt-16 lg:mt-24 border-t border-pink-500/10 pt-10 text-center">
-                  <div className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15">
-                    <p className="text-white font-semibold text-sm">ATS Optimization</p>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15">
-                    <p className="text-white font-semibold text-sm">AI Career Coach</p>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15">
-                    <p className="text-white font-semibold text-sm">Resume Builder</p>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15">
-                    <p className="text-white font-semibold text-sm">Job Matching</p>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15">
-                    <p className="text-white font-semibold text-sm">Interview AI</p>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15">
-                    <p className="text-white font-semibold text-sm">Skill Roadmap</p>
-                  </div>
+                {/* Features list bottom banner */}
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mt-16 lg:mt-20 border-t border-pink-500/10 pt-10 text-center">
+                  {['ATS Optimization','AI Career Coach','Resume Builder','Job Matching','Interview AI','Skill Roadmap'].map((feat, i) => (
+                    <div key={i} className="px-3 py-2 rounded-xl glass-panel border border-pink-500/15 hover:border-pink-500/30 transition-colors">
+                      <p className="text-white font-semibold text-sm">{feat}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
@@ -1876,9 +2082,14 @@ export default function App() {
                 <h2 className="text-xl font-bold text-white font-sans tracking-tight">Resume Comparison & Rankings</h2>
                 <p className="text-xs text-slate-400">Upload multiple resumes to instantly compare candidates and find the best match.</p>
               </div>
-              <button onClick={() => setActiveTab("dashboard")} className="px-3.5 py-2 bg-[#1a0516]/65 hover:bg-[#2c0b26] text-xs text-slate-300 rounded-xl">
-                Close Benchmark
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setActiveTab("landing")} className="px-3.5 py-2 bg-white/5 hover:bg-white/10 text-xs text-slate-400 rounded-xl border border-white/8 flex items-center gap-1.5 transition-colors">
+                  🏠 Home
+                </button>
+                <button onClick={() => setActiveTab("dashboard")} className="px-3.5 py-2 bg-[#1a0516]/65 hover:bg-[#2c0b26] text-xs text-slate-300 rounded-xl border border-pink-500/15">
+                  Dashboard
+                </button>
+              </div>
             </div>
 
             {/* BATCH UPLOAD ZONE */}
@@ -1933,34 +2144,74 @@ export default function App() {
                 
                 {/* Sorted candidate board */}
                 <div className="lg:col-span-2 glass-panel glass-panel-hover rounded-2xl p-6">
-                  <h3 className="text-sm font-mono font-bold text-pink-400 uppercase tracking-widest mb-4">Candidate Rankings</h3>
+                  <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-mono font-bold text-pink-400 uppercase tracking-widest">🏆 Candidate Rankings</h3>
+                  <span className="text-xs text-slate-500">{batchLeaderboard.length} candidates ranked</span>
+                </div>
                   
                   <div className="flex flex-col gap-3">
-                    {batchLeaderboard.map((item) => (
-                      <div key={item.id} className="glass-card-inset p-4 rounded-xl border border-slate-855 flex items-center justify-between flex-wrap gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="h-8 w-8 rounded-full glass-panel glass-panel-hover flex items-center justify-center font-bold font-mono text-slate-400">
-                            #{item.rank}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-white">{item.name}</p>
-                            <span className="text-xs text-slate-500 font-mono italic max-w-sm block truncate">{item.experienceRoles}</span>
+                    {batchLeaderboard.map((item) => {
+                      const medalEmoji = item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : null;
+                      const rankClass = item.rank === 1 ? 'rank-1' : item.rank === 2 ? 'rank-2' : item.rank === 3 ? 'rank-3' : '';
+                      const atsColor = item.atsScore >= 85 ? 'text-emerald-400' : item.atsScore >= 65 ? 'text-yellow-400' : 'text-rose-400';
+                      const atsBarColor = item.atsScore >= 85 ? 'progress-fill-green' : 'progress-fill';
+                      const matchColor = item.jobMatch >= 80 ? 'text-emerald-400' : item.jobMatch >= 60 ? 'text-yellow-400' : 'text-slate-400';
+                      return (
+                        <div key={item.id} className={`rank-card p-5 animate-fade-up ${rankClass}`} style={{ animationDelay: `${(item.rank - 1) * 0.07}s` }}>
+                          <div className="flex items-start gap-4 flex-wrap">
+                            {/* Rank badge */}
+                            <div className="flex-shrink-0 flex flex-col items-center justify-center min-w-[48px]">
+                              {medalEmoji ? (
+                                <span className="text-2xl">{medalEmoji}</span>
+                              ) : (
+                                <div className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold font-mono text-slate-400 text-sm">
+                                  #{item.rank}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Name & roles */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-base font-bold text-white leading-tight">{item.name}</p>
+                              <p className="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-xs">{item.experienceRoles}</p>
+                              
+                              {/* Skills chips */}
+                              {item.skills && item.skills.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                  {item.skills.slice(0, 5).map((skill: string, si: number) => (
+                                    <span key={si} className="skill-tag">{skill}</span>
+                                  ))}
+                                  {item.skills.length > 5 && (
+                                    <span className="text-[10px] text-pink-400 self-center font-mono">+{item.skills.length - 5}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Scores */}
+                            <div className="flex items-center gap-6 flex-shrink-0">
+                              {/* ATS Score */}
+                              <div className="text-right w-24">
+                                <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">ATS Score</span>
+                                <span className={`text-xl font-extrabold font-mono ${atsColor}`}>{item.atsScore}</span>
+                                <div className="progress-track mt-1.5">
+                                  <div className={atsBarColor} style={{ width: `${item.atsScore}%` }} />
+                                </div>
+                              </div>
+
+                              {/* Job Match */}
+                              <div className="text-right w-24">
+                                <span className="text-[10px] text-slate-500 block uppercase font-bold tracking-wider mb-1">Job Match</span>
+                                <span className={`text-xl font-extrabold font-mono ${matchColor}`}>{item.jobMatch}%</span>
+                                <div className="progress-track mt-1.5">
+                                  <div className="progress-fill-green" style={{ width: `${item.jobMatch}%` }} />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-6">
-                          <div className="text-right">
-                            <span className="text-xs text-slate-500 block uppercase font-bold tracking-wider">ATS SCORE</span>
-                            <span className="text-lg font-extrabold text-pink-400 font-mono">{item.atsScore}</span>
-                          </div>
-
-                          <div className="text-right">
-                            <span className="text-xs text-slate-500 block uppercase font-bold tracking-wider">JOB MATCH</span>
-                            <span className="text-lg font-extrabold text-emerald-400 font-mono">{item.jobMatch}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
