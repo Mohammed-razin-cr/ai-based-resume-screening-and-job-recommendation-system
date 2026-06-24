@@ -4,6 +4,7 @@ import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import mongoose, { Schema } from "mongoose";
 
 dotenv.config();
 
@@ -13,9 +14,121 @@ const PORT = 3000;
 app.use(express.json({ limit: "25mb" }));
 
 // ---------------------------------------------------------
-// DATABASE & SESSION ENGINE (Robust Local File Persistence)
+// MONGOOSE SCHEMAS & MODELS
 // ---------------------------------------------------------
-const DB_FILE = path.join(process.cwd(), "database.json");
+
+const UserSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  passwordHash: { type: String, required: true },
+  isVerified: { type: Boolean, default: false },
+  avatar: { type: String },
+  createdAt: { type: String, default: () => new Date().toISOString() }
+});
+const UserModel = mongoose.model("User", UserSchema);
+
+const ResumeSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  fileName: { type: String, required: true },
+  fileType: { type: String, required: true },
+  uploadedAt: { type: String, default: () => new Date().toISOString() },
+  parsedData: {
+    fullName: { type: String, default: "" },
+    email: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    skills: [{ type: String }],
+    education: [{ degree: String, institution: String, year: String }],
+    experience: [{ role: String, company: String, duration: String, description: String }],
+    certifications: [{ type: String }],
+    projects: [{ title: String, tech: [String], description: String }],
+    links: { linkedin: String, github: String, portfolio: String }
+  },
+  atsReport: {
+    score: { type: Number, default: 0 },
+    structureScore: { type: Number, default: 0 },
+    formattingScore: { type: Number, default: 0 },
+    keywordDensity: { type: Number, default: 0 },
+    skillsMatch: { type: Number, default: 0 },
+    grammarScore: { type: Number, default: 0 },
+    readabilityScore: { type: Number, default: 0 },
+    gradeCategory: { type: String, default: "Needs Improvement" },
+    missingSkills: [{ type: String }],
+    missingKeywords: [{ type: String }],
+    improvementRoadmap: [{ type: String }],
+    suggestedRewrites: [{ Section: String, Before: String, After: String }]
+  }
+});
+const ResumeModel = mongoose.model("Resume", ResumeSchema);
+
+const ChatMessageSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  role: { type: String, enum: ["user", "model"], required: true },
+  message: { type: String, required: true },
+  timestamp: { type: String, default: () => new Date().toISOString() }
+});
+const ChatMessageModel = mongoose.model("ChatMessage", ChatMessageSchema);
+
+const SavedJobSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  title: { type: String, required: true },
+  company: { type: String, required: true },
+  location: { type: String },
+  salary: { type: String },
+  matchScore: { type: Number },
+  type: { type: String },
+  link: { type: String }
+});
+const SavedJobModel = mongoose.model("SavedJob", SavedJobSchema);
+
+const CoverLetterSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  generatedAt: { type: String, default: () => new Date().toISOString() }
+});
+const CoverLetterModel = mongoose.model("CoverLetter", CoverLetterSchema);
+
+const InterviewPrepSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  role: { type: String, required: true },
+  questions: [{
+    id: String,
+    category: String,
+    question: String,
+    sampleAnswer: String,
+    userAnswer: String,
+    evalScore: Number,
+    evalFeedback: String
+  }],
+  timestamp: { type: String, default: () => new Date().toISOString() }
+});
+const InterviewPrepModel = mongoose.model("InterviewPrep", InterviewPrepSchema);
+
+const SkillGapReportSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  userId: { type: String, required: true },
+  targetRole: { type: String, required: true },
+  currentSkills: [{ type: String }],
+  missingSkills: [{ type: String }],
+  roadmap: {
+    plan30Days: [{ type: String }],
+    plan60Days: [{ type: String }],
+    plan90Days: [{ type: String }],
+    learningResources: [{ name: String, url: String, type: String }]
+  },
+  createdAt: { type: String, default: () => new Date().toISOString() }
+});
+const SkillGapReportModel = mongoose.model("SkillGapReport", SkillGapReportSchema);
+
+// ---------------------------------------------------------
+// DATABASE & SESSION ENGINE (TypeScript Interfaces)
+// ---------------------------------------------------------
 
 interface User {
   id: string;
@@ -48,11 +161,11 @@ interface Resume {
     score: number;
     structureScore: number;
     formattingScore: number;
-    keywordDensity: number; // percentage
-    skillsMatch: number; // percentage
+    keywordDensity: number;
+    skillsMatch: number;
     grammarScore: number;
     readabilityScore: number;
-    gradeCategory: string; // e.g. "Excellent", "Strong"
+    gradeCategory: string;
     missingSkills: string[];
     missingKeywords: string[];
     improvementRoadmap: string[];
@@ -76,7 +189,7 @@ interface SavedJob {
   location: string;
   salary: string;
   matchScore: number;
-  type: string; // "Remote" | "Hybrid" | "Onsite"
+  type: string;
   link: string;
 }
 
@@ -129,17 +242,7 @@ interface DatabaseSchema {
   skillGaps: SkillGapReport[];
 }
 
-const DEFAULT_DB: DatabaseSchema = {
-  users: [],
-  resumes: [],
-  chats: [],
-  jobs: [],
-  coverLetters: [],
-  interviews: [],
-  skillGaps: []
-};
-
-// Seed database with highly realistic candidates for comparing resumes and analytics
+// Seed database with highly realistic candidates
 function getSeededDB(): DatabaseSchema {
   const seedUsers: User[] = [
     {
@@ -381,26 +484,28 @@ function getSeededDB(): DatabaseSchema {
   };
 }
 
-function loadDatabase(): DatabaseSchema {
+async function seedDatabaseIfEmpty() {
   try {
-    if (fs.existsSync(DB_FILE)) {
-      const content = fs.readFileSync(DB_FILE, "utf-8");
-      return JSON.parse(content);
+    const userCount = await UserModel.countDocuments();
+    if (userCount === 0) {
+      console.log("No users found in MongoDB. Seeding database with default candidates...");
+      const seed = getSeededDB();
+      
+      for (const u of seed.users) {
+        await UserModel.create(u);
+      }
+      for (const r of seed.resumes) {
+        await ResumeModel.create(r);
+      }
+      for (const j of seed.jobs) {
+        await SavedJobModel.create(j);
+      }
+      console.log("Database seeded successfully!");
+    } else {
+      console.log("MongoDB database contains existing records. Skipping seeding.");
     }
   } catch (error) {
-    console.error("Failed to read database.json, initializing fresh db...", error);
-  }
-  // Initialize with seed data to ensure leaderboard and side-by-side look stellar instantly
-  const seed = getSeededDB();
-  saveDatabase(seed);
-  return seed;
-}
-
-function saveDatabase(db: DatabaseSchema) {
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
-  } catch (error) {
-    console.error("Failed to save database.json", error);
+    console.error("Failed to seed database:", error);
   }
 }
 
@@ -428,10 +533,9 @@ if (apiKey && apiKey !== "MY_GEMINI_API_KEY") {
   console.log("No custom GEMINI_API_KEY detected. Standing by on intelligent analytical heuristics.");
 }
 
-// Helper to interact with AI
 async function queryGemini(prompt: string, systemInstruction?: string, isJson = false): Promise<string> {
   if (!ai) {
-    return ""; // Fallback will handle
+    return "";
   }
   try {
     const config: any = {};
@@ -456,17 +560,15 @@ async function queryGemini(prompt: string, systemInstruction?: string, isJson = 
 // COMPREHENSIVE SERVER ROUTING
 // ---------------------------------------------------------
 
-// Helper to get active user ID from Authorization header
 function getUserIdFromHeaders(req: express.Request): string | null {
   const auth = req.headers.authorization;
   if (!auth) return null;
   const token = auth.replace("Bearer ", "").trim();
-  // We use simple token = user.id for mock sandbox state persistence
   return token || null;
 }
 
 // --- USER AUTHENTICATION ENDPOINTS ---
-app.post("/api/auth/register", (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: "Name, email, and password are required fields." });
@@ -475,145 +577,169 @@ app.post("/api/auth/register", (req, res) => {
     return res.status(400).json({ error: "Passwords do not match." });
   }
 
-  const db = loadDatabase();
-  const existingUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (existingUser) {
-    return res.status(400).json({ error: "Email is already registered. Please login instead." });
+  try {
+    const existingUser = await UserModel.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email is already registered. Please login instead." });
+    }
+
+    const newUser = {
+      id: `usr-${Date.now()}`,
+      name,
+      email: email.toLowerCase(),
+      passwordHash: password,
+      isVerified: false,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`
+    };
+
+    await UserModel.create(newUser);
+
+    return res.json({
+      message: "Registration successful! A mock verification email was dispatched. Please review status.",
+      user: { id: newUser.id, name: newUser.name, email: newUser.email, avatar: newUser.avatar, isVerified: false }
+    });
+  } catch (err) {
+    console.error("Register error:", err);
+    return res.status(500).json({ error: "Internal server error." });
   }
-
-  const newUser: User = {
-    id: `usr-${Date.now()}`,
-    name,
-    email: email.toLowerCase(),
-    passwordHash: password, // Store password in plain/hashed mock mode securely for visual sandbox login
-    isVerified: false,
-    createdAt: new Date().toISOString(),
-    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`
-  };
-
-  db.users.push(newUser);
-  saveDatabase(db);
-
-  return res.json({
-    message: "Registration successful! A mock verification email was dispatched. Please review status.",
-    user: { id: newUser.id, name: newUser.name, email: newUser.email, avatar: newUser.avatar, isVerified: false }
-  });
 });
 
-app.post("/api/auth/login", (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: "Mail coordinate and security credentials are required." });
   }
 
-  const db = loadDatabase();
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user || user.passwordHash !== password) {
-    return res.status(401).json({ error: "Invalid email or credentials. Please verify data." });
-  }
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    if (!user || user.passwordHash !== password) {
+      return res.status(401).json({ error: "Invalid email or credentials. Please verify data." });
+    }
 
-  return res.json({
-    message: "Authentication successful.",
-    user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, isVerified: user.isVerified },
-    token: user.id // Send back simplified user.id as authorization token
-  });
+    return res.json({
+      message: "Authentication successful.",
+      user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, isVerified: user.isVerified },
+      token: user.id
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-app.post("/api/auth/verify-email", (req, res) => {
+app.post("/api/auth/verify-email", async (req, res) => {
   const userId = getUserIdFromHeaders(req);
   if (!userId) return res.status(401).json({ error: "Unauthorized active session." });
 
-  const db = loadDatabase();
-  const user = db.users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: "Candidate not located." });
+  try {
+    const user = await UserModel.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "Candidate not located." });
 
-  user.isVerified = true;
-  saveDatabase(db);
+    user.isVerified = true;
+    await user.save();
 
-  return res.json({ message: "SaaS email coordinate verified successfully!", user: { ...user, passwordHash: undefined } });
+    return res.json({ message: "SaaS email coordinate verified successfully!", user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, isVerified: user.isVerified } });
+  } catch (err) {
+    console.error("Verify email error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-app.post("/api/auth/forgot-password", (req, res) => {
+app.post("/api/auth/forgot-password", async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Email coordinate required." });
 
-  const db = loadDatabase();
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user) {
-    return res.status(404).json({ error: "No profile matching that email could be found." });
-  }
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: "No profile matching that email could be found." });
+    }
 
-  return res.json({
-    message: "A password restructural key has been generated and dispatched to your simulated inbox! Verify prompt inside settings."
-  });
+    return res.json({
+      message: "A password restructural key has been generated and dispatched to your simulated inbox! Verify prompt inside settings."
+    });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-app.post("/api/auth/reset-password", (req, res) => {
+app.post("/api/auth/reset-password", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: "Missing required fields." });
 
-  const db = loadDatabase();
-  const user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!user) return res.status(404).json({ error: "Candidate not found." });
+  try {
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(404).json({ error: "Candidate not found." });
 
-  user.passwordHash = password;
-  saveDatabase(db);
-  return res.json({ message: "Security parameters successfully reset. Log in with your new password." });
+    user.passwordHash = password;
+    await user.save();
+    return res.json({ message: "Security parameters successfully reset. Log in with your new password." });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
 // --- PROFILE & SETTINGS ---
-app.get("/api/profile", (req, res) => {
+app.get("/api/profile", async (req, res) => {
   const userId = getUserIdFromHeaders(req);
   if (!userId) return res.status(401).json({ error: "Unauthorized session." });
 
-  const db = loadDatabase();
-  const user = db.users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: "Profile not found." });
+  try {
+    const user = await UserModel.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "Profile not found." });
 
-  const userResumes = db.resumes.filter(r => r.userId === userId);
-  const userChats = db.chats.filter(c => c.userId === userId);
-  const userJobs = db.jobs.filter(j => j.userId === userId);
-  const userCoverLetters = db.coverLetters.filter(l => l.userId === userId);
-  const userInterviews = db.interviews.filter(i => i.userId === userId);
-  const userSkillGaps = db.skillGaps.filter(s => s.userId === userId);
+    const userResumes = await ResumeModel.find({ userId: userId });
+    const userChats = await ChatMessageModel.find({ userId: userId });
+    const userJobs = await SavedJobModel.find({ userId: userId });
+    const userCoverLetters = await CoverLetterModel.find({ userId: userId });
+    const userInterviews = await InterviewPrepModel.find({ userId: userId });
+    const userSkillGaps = await SkillGapReportModel.find({ userId: userId });
 
-  return res.json({
-    user: { id: user.id, name: user.name, email: user.email, isVerified: user.isVerified, avatar: user.avatar, createdAt: user.createdAt },
-    statistics: {
-      totalResumes: userResumes.length,
-      averageAts: userResumes.length ? Math.round(userResumes.reduce((acc, cr) => acc + cr.atsReport.score, 0) / userResumes.length) : 0,
-      totalInterviews: userInterviews.length,
-      savedJobs: userJobs.length,
-      chatThreads: userChats.length
-    },
-    resumes: userResumes,
-    jobs: userJobs,
-    coverLetters: userCoverLetters,
-    interviews: userInterviews,
-    skillGaps: userSkillGaps
-  });
+    return res.json({
+      user: { id: user.id, name: user.name, email: user.email, isVerified: user.isVerified, avatar: user.avatar, createdAt: user.createdAt },
+      statistics: {
+        totalResumes: userResumes.length,
+        averageAts: userResumes.length ? Math.round(userResumes.reduce((acc, cr) => acc + (cr.atsReport?.score || 0), 0) / userResumes.length) : 0,
+        totalInterviews: userInterviews.length,
+        savedJobs: userJobs.length,
+        chatThreads: userChats.length
+      },
+      resumes: userResumes,
+      jobs: userJobs,
+      coverLetters: userCoverLetters,
+      interviews: userInterviews,
+      skillGaps: userSkillGaps
+    });
+  } catch (err) {
+    console.error("Get profile error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-app.post("/api/profile/update", (req, res) => {
+app.post("/api/profile/update", async (req, res) => {
   const userId = getUserIdFromHeaders(req);
   if (!userId) return res.status(401).json({ error: "Unauthorized access." });
 
   const { name, email, avatar } = req.body;
-  const db = loadDatabase();
-  const user = db.users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ error: "Candidate profile not found." });
+  try {
+    const user = await UserModel.findOne({ id: userId });
+    if (!user) return res.status(404).json({ error: "Candidate profile not found." });
 
-  if (name) user.name = name;
-  if (email) user.email = email.toLowerCase();
-  if (avatar) user.avatar = avatar;
+    if (name) user.name = name;
+    if (email) user.email = email.toLowerCase();
+    if (avatar) user.avatar = avatar;
 
-  saveDatabase(db);
-  return res.json({ message: "Enterprise profile parameters updated successfully.", user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, isVerified: user.isVerified } });
+    await user.save();
+    return res.json({ message: "Enterprise profile parameters updated successfully.", user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, isVerified: user.isVerified } });
+  } catch (err) {
+    console.error("Update profile error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-
 // --- RESUME UPLOAD AND PARSING ENGINE + ADVANCED ATS SCORING ENGINE ---
-// Accepts either PDF binary text mock representation or standard document fields
 app.post("/api/resumes/upload", async (req, res) => {
   const userId = getUserIdFromHeaders(req) || "guest-session";
   const { fileName, fileType, textContent } = req.body;
@@ -627,7 +753,6 @@ app.post("/api/resumes/upload", async (req, res) => {
   Experience: Lead Developer at Netflix, Software Intern at Slack.
   Skills: JavaScript, Node.js, React, HTML, CSS, TypeScript.`;
 
-  // Define some robust parsing fallback data
   let parsedName = "Unknown Candidate";
   let parsedEmail = "contact@agency.com";
   let parsedPhone = "+1 (555) 000-0000";
@@ -638,7 +763,6 @@ app.post("/api/resumes/upload", async (req, res) => {
   let parsedProjects = [{ title: "My Portfolio", tech: ["HTML", "CSS"], description: "Simple SaaS visual landing layout details." }];
   let parsedLinks = { linkedin: "", github: "", portfolio: "" };
 
-  // Advanced ATS Scoring metric items
   let atsScore = 65;
   let scoreStructure = 70;
   let scoreFormatting = 65;
@@ -656,7 +780,6 @@ app.post("/api/resumes/upload", async (req, res) => {
     { Section: "Experience Description", Before: "Did programming daily and debugged.", After: "Synthesized responsive client widgets utilizing React Hooks and optimized daily container cold-starts." }
   ];
 
-  // Try parsing using Gemini if it is turned on
   if (ai) {
     const geminiPrompt = `
       You are an expert Enterprise Applicant Tracking System (ATS) Parser and Career Coach. 
@@ -715,13 +838,11 @@ app.post("/api/resumes/upload", async (req, res) => {
       }
     } catch (err) {
       console.error("Gemini failed to parse resume details. Falling back to heuristic parse evaluation.", err);
-      // Run smart heuristic parser
       if (rawText.toLowerCase().includes("react")) parsedSkills.push("React", "Tailwind");
       if (rawText.toLowerCase().includes("node")) parsedSkills.push("Node.js", "Express");
       if (rawText.toLowerCase().includes("python")) parsedSkills.push("Python", "NLP");
     }
   } else {
-    // Basic smart heuristics when Gemini is unavailable
     if (rawText.toLowerCase().includes("react")) parsedSkills.push("React", "Tailwind CSS", "Redux");
     if (rawText.toLowerCase().includes("python")) parsedSkills.push("Python", "Pandas", "Scikit-Learn");
     if (rawText.toLowerCase().includes("lead")) {
@@ -730,234 +851,249 @@ app.post("/api/resumes/upload", async (req, res) => {
     }
   }
 
-  // Determine Grade Category
   let gradeCategory = "Needs Improvement";
   if (atsScore >= 90) gradeCategory = "Excellent";
   else if (atsScore >= 80) gradeCategory = "Strong";
   else if (atsScore >= 70) gradeCategory = "Good";
   else if (atsScore >= 60) gradeCategory = "Average";
 
-  const db = loadDatabase();
-  const newResumeItem: Resume = {
-    id: `res-${Date.now()}`,
-    userId,
-    fileName,
-    fileType,
-    uploadedAt: new Date().toISOString(),
-    parsedData: {
-      fullName: parsedName,
-      email: parsedEmail,
-      phone: parsedPhone,
-      skills: [...new Set(parsedSkills)],
-      education: parsedEducation,
-      experience: parsedExperience,
-      certifications: parsedCertifications,
-      projects: parsedProjects,
-      links: parsedLinks
-    },
-    atsReport: {
-      score: atsScore,
-      structureScore: scoreStructure,
-      formattingScore: scoreFormatting,
-      keywordDensity: scoreKeywords,
-      skillsMatch: scoreSkills,
-      grammarScore: scoreGrammar,
-      readabilityScore: scoreReadability,
-      gradeCategory,
-      missingSkills,
-      missingKeywords,
-      improvementRoadmap: improvements,
-      suggestedRewrites: recommendations
-    }
-  };
+  try {
+    const newResumeItem = {
+      id: `res-${Date.now()}`,
+      userId,
+      fileName,
+      fileType,
+      uploadedAt: new Date().toISOString(),
+      parsedData: {
+        fullName: parsedName,
+        email: parsedEmail,
+        phone: parsedPhone,
+        skills: [...new Set(parsedSkills)],
+        education: parsedEducation,
+        experience: parsedExperience,
+        certifications: parsedCertifications,
+        projects: parsedProjects,
+        links: parsedLinks
+      },
+      atsReport: {
+        score: atsScore,
+        structureScore: scoreStructure,
+        formattingScore: scoreFormatting,
+        keywordDensity: scoreKeywords,
+        skillsMatch: scoreSkills,
+        grammarScore: scoreGrammar,
+        readabilityScore: scoreReadability,
+        gradeCategory,
+        missingSkills,
+        missingKeywords,
+        improvementRoadmap: improvements,
+        suggestedRewrites: recommendations
+      }
+    };
 
-  db.resumes.push(newResumeItem);
-  saveDatabase(db);
+    await ResumeModel.create(newResumeItem);
 
-  return res.json({
-    message: "Resume parsed, compiled, and integrated in Cloud ATS history successfully!",
-    resume: newResumeItem
-  });
-});
-
-app.get("/api/resumes/list", (req, res) => {
-  const userId = getUserIdFromHeaders(req) || "guest-session";
-  const db = loadDatabase();
-  const resumes = db.resumes.filter(r => r.userId === userId || r.id.startsWith("seed-"));
-  return res.json({ resumes });
-});
-
-app.delete("/api/resumes/:id", (req, res) => {
-  const resumeId = req.params.id;
-  const db = loadDatabase();
-  const initialLen = db.resumes.length;
-  db.resumes = db.resumes.filter(r => r.id !== resumeId);
-  if (db.resumes.length === initialLen) {
-    return res.status(404).json({ error: "Resume profile not found." });
+    return res.json({
+      message: "Resume parsed, compiled, and integrated in Cloud ATS history successfully!",
+      resume: newResumeItem
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    return res.status(500).json({ error: "Internal server error." });
   }
-  saveDatabase(db);
-  return res.json({ message: "Resume successfully deleted from SaaS analysis indexes." });
 });
 
-// Batch Analysis on uploaded Resumes (Up to 50 items)
-app.post("/api/resumes/batch-analyze", (req, res) => {
+app.get("/api/resumes/list", async (req, res) => {
+  const userId = getUserIdFromHeaders(req) || "guest-session";
+  try {
+    const resumes = await ResumeModel.find({
+      $or: [
+        { userId: userId },
+        { id: { $regex: /^seed-/ } }
+      ]
+    });
+    return res.json({ resumes });
+  } catch (err) {
+    console.error("List resumes error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.delete("/api/resumes/:id", async (req, res) => {
+  const resumeId = req.params.id;
+  try {
+    const result = await ResumeModel.deleteOne({ id: resumeId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Resume profile not found." });
+    }
+    return res.json({ message: "Resume successfully deleted from SaaS analysis indexes." });
+  } catch (err) {
+    console.error("Delete resume error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/api/resumes/batch-analyze", async (req, res) => {
   const userId = getUserIdFromHeaders(req) || "guest-session";
   const { resumeIds } = req.body;
   if (!Array.isArray(resumeIds) || resumeIds.length === 0) {
     return res.status(400).json({ error: "Requires an array of resume IDs requested for leaderboard ranking." });
   }
 
-  const db = loadDatabase();
-  const selectedResumes = db.resumes.filter(r => resumeIds.includes(r.id));
+  try {
+    const selectedResumes = await ResumeModel.find({ id: { $in: resumeIds } });
 
-  if (selectedResumes.length === 0) {
-    return res.status(400).json({ error: "None of the specified resume identifiers were recovered." });
+    if (selectedResumes.length === 0) {
+      return res.status(400).json({ error: "None of the specified resume identifiers were recovered." });
+    }
+
+    const leaderboard = selectedResumes
+      .map((r) => {
+        const matchScore = Math.min(98, 50 + (r.parsedData?.skills?.length || 0) * 4);
+        return {
+          rank: 0,
+          id: r.id,
+          name: r.parsedData?.fullName || r.fileName,
+          fileName: r.fileName,
+          atsScore: r.atsReport?.score || 0,
+          skillsCount: r.parsedData?.skills?.length || 0,
+          jobMatch: matchScore,
+          experienceRoles: r.parsedData?.experience?.map((e: any) => e.role).join(", ") || "No experience reported."
+        };
+      })
+      .sort((a, b) => b.atsScore - a.atsScore);
+
+    leaderboard.forEach((item, index) => {
+      item.rank = index + 1;
+    });
+
+    const topCandidate = leaderboard[0];
+    const weakCandidate = leaderboard[leaderboard.length - 1];
+
+    const topResume = selectedResumes.find(r => r.id === topCandidate.id);
+    const weakResume = selectedResumes.find(r => r.id === weakCandidate.id);
+
+    const feedbackInsights = {
+      topWinner: topCandidate ? `${topCandidate.name} showcases stellar ATS compatibility with an elegant structure score of ${topResume?.atsReport?.structureScore || 0}%.` : "No leader outstanding.",
+      weakWarning: weakCandidate && weakCandidate !== topCandidate ? `We recommend optimizing ${weakCandidate.name}'s resume, as its skills match score of ${weakResume?.atsReport?.skillsMatch || 0}% falls behind active industry keywords.` : "Leaderboard balances stably.",
+      remedySteps: [
+        "Normalize header configurations across all candidate templates",
+        "Ensure text contrasts remain legible without utilizing double vertical borders or nested layouts"
+      ]
+    };
+
+    return res.json({
+      leaderboard,
+      comparisonMetrics: {
+        totalCandidates: selectedResumes.length,
+        averageAts: Math.round(selectedResumes.reduce((sum, r) => sum + (r.atsReport?.score || 0), 0) / selectedResumes.length),
+        topCandidate: topCandidate ? topCandidate.name : "N/A",
+        weakCandidate: weakCandidate ? weakCandidate.name : "N/A"
+      },
+      insights: feedbackInsights
+    });
+  } catch (err) {
+    console.error("Batch analyze error:", err);
+    return res.status(500).json({ error: "Internal server error." });
   }
-
-  // Calculate high-fidelity comparison rankings
-  const leaderboard = selectedResumes
-    .map((r, index) => {
-      // Job Match scores based on skills volume
-      const matchScore = Math.min(98, 50 + r.parsedData.skills.length * 4);
-      return {
-        rank: 0, // Assigned below
-        id: r.id,
-        name: r.parsedData.fullName || r.fileName,
-        fileName: r.fileName,
-        atsScore: r.atsReport.score,
-        skillsCount: r.parsedData.skills.length,
-        jobMatch: matchScore,
-        experienceRoles: r.parsedData.experience.map(e => e.role).join(", ") || "No experience reported."
-      };
-    })
-    .sort((a, b) => b.atsScore - a.atsScore);
-
-  // Assign index ranks
-  leaderboard.forEach((item, index) => {
-    item.rank = index + 1;
-  });
-
-  const topCandidate = leaderboard[0];
-  const weakCandidate = leaderboard[leaderboard.length - 1];
-
-  const feedbackInsights = {
-    topWinner: topCandidate ? `${topCandidate.name} showcases stellar ATS compatibility with an elegant structure score of ${selectedResumes.find(r => r.id === topCandidate.id)?.atsReport.structureScore}%.` : "No leader outstanding.",
-    weakWarning: weakCandidate && weakCandidate !== topCandidate ? `We recommend optimizing ${weakCandidate.name}'s resume, as its skills match score of ${selectedResumes.find(r => r.id === weakCandidate.id)?.atsReport.skillsMatch}% falls behind active industry keywords.` : "Leaderboard balances stably.",
-    remedySteps: [
-      "Normalize header configurations across all candidate templates",
-      "Ensure text contrasts remain legible without utilizing double vertical borders or nested layouts"
-    ]
-  };
-
-  return res.json({
-    leaderboard,
-    comparisonMetrics: {
-      totalCandidates: selectedResumes.length,
-      averageAts: Math.round(selectedResumes.reduce((sum, r) => sum + r.atsReport.score, 0) / selectedResumes.length),
-      topCandidate: topCandidate ? topCandidate.name : "N/A",
-      weakCandidate: weakCandidate ? weakCandidate.name : "N/A"
-    },
-    insights: feedbackInsights
-  });
 });
-
 
 // --- JOB & COMPANY RECOMMENDATION ENGINES ---
-// Automatically serves matches and company prospects based on candidate's uploaded profile
-app.get("/api/jobs/recommendations", (req, res) => {
+app.get("/api/jobs/recommendations", async (req, res) => {
   const userId = getUserIdFromHeaders(req) || "guest-session";
-  const db = loadDatabase();
+  try {
+    const candidateResumes = await ResumeModel.find({ userId: userId });
+    let activeResume = candidateResumes[candidateResumes.length - 1];
+    if (!activeResume) {
+      activeResume = await ResumeModel.findOne({ userId: "seed-user-1" }) as any;
+    }
 
-  // Find candidate's latest active resume to compute accurate matches
-  const candidateResumes = db.resumes.filter(r => r.userId === userId);
-  const activeResume = candidateResumes[candidateResumes.length - 1] || db.resumes.find(r => r.userId === "seed-user-1");
+    const skills = activeResume ? activeResume.parsedData.skills : ["HTML", "JavaScript", "React", "Node.js"];
+    const list: any[] = [];
+    const lowercaseSkills = skills.map((s: string) => s.toLowerCase());
 
-  const skills = activeResume ? activeResume.parsedData.skills : ["HTML", "JavaScript", "React", "Node.js"];
+    if (lowercaseSkills.includes("python") || lowercaseSkills.includes("machine learning") || lowercaseSkills.includes("pandas")) {
+      list.push({
+        id: "rec-job-1",
+        title: "Data Analyst & Python Architect",
+        company: "Netflix",
+        skillsRequired: ["Python", "SQL", "Tableau", "Pandas"],
+        salary: "$120k - $145k",
+        experience: "2+ Years",
+        type: "Remote",
+        matchScore: 92,
+        link: "https://linkedin.com/company/netflix/jobs"
+      });
+      list.push({
+        id: "rec-job-2",
+        title: "Junior Data Engineer",
+        company: "Snowflake",
+        skillsRequired: ["Python", "SQL", "Spark"],
+        salary: "$110k - $130k",
+        experience: "Entry Level",
+        type: "Hybrid",
+        matchScore: 81,
+        link: "https://linkedin.com/company/snowflake/jobs"
+      });
+    }
 
-  // Generate realistic recommended roles based on skills
-  const list: any[] = [];
-  const lowercaseSkills = skills.map(s => s.toLowerCase());
+    if (lowercaseSkills.includes("react") || lowercaseSkills.includes("javascript") || lowercaseSkills.includes("typescript")) {
+      list.push({
+        id: "rec-job-3",
+        title: "Frontend Developer (React / Next.js)",
+        company: "Vercel",
+        skillsRequired: ["React", "TypeScript", "Tailwind CSS"],
+        salary: "$115k - $140k",
+        experience: "1-3 Years",
+        type: "Remote",
+        matchScore: 96,
+        link: "https://linkedin.com/company/vercel/jobs"
+      });
+      list.push({
+        id: "rec-job-4",
+        title: "Full Stack Engineer (Node/React)",
+        company: "Stripe",
+        skillsRequired: ["React", "Node.js", "Express", "TypeScript"],
+        salary: "$130k - $165k",
+        experience: "3+ Years",
+        type: "Onsite",
+        matchScore: 89,
+        link: "https://linkedin.com/company/stripe/jobs"
+      });
+    }
 
-  if (lowercaseSkills.includes("python") || lowercaseSkills.includes("machine learning") || lowercaseSkills.includes("pandas")) {
-    list.push({
-      id: "rec-job-1",
-      title: "Data Analyst & Python Architect",
-      company: "Netflix",
-      skillsRequired: ["Python", "SQL", "Tableau", "Pandas"],
-      salary: "$120k - $145k",
-      experience: "2+ Years",
-      type: "Remote",
-      matchScore: 92,
-      link: "https://linkedin.com/company/netflix/jobs"
-    });
-    list.push({
-      id: "rec-job-2",
-      title: "Junior Data Engineer",
-      company: "Snowflake",
-      skillsRequired: ["Python", "SQL", "Spark"],
-      salary: "$110k - $130k",
-      experience: "Entry Level",
-      type: "Hybrid",
-      matchScore: 81,
-      link: "https://linkedin.com/company/snowflake/jobs"
-    });
+    if (list.length === 0) {
+      list.push({
+        id: "rec-job-5",
+        title: "Associate Software Engineer",
+        company: "Atlassian",
+        skillsRequired: ["JavaScript", "HTML", "CSS", "Git"],
+        salary: "$95k - $120k",
+        experience: "Entry Level",
+        type: "Remote",
+        matchScore: 78,
+        link: "https://linkedin.com/company/atlassian/jobs"
+      });
+      list.push({
+        id: "rec-job-6",
+        title: "Product Operations Lead",
+        company: "Notion",
+        skillsRequired: ["Agile", "Product Lifecycles", "Excel"],
+        salary: "$105k - $125k",
+        experience: "2+ Years",
+        type: "Hybrid",
+        matchScore: 71,
+        link: "https://linkedin.com/company/notion/jobs"
+      });
+    }
+
+    return res.json({ recommendations: list });
+  } catch (err) {
+    console.error("Job recommendations error:", err);
+    return res.status(500).json({ error: "Internal server error." });
   }
-
-  if (lowercaseSkills.includes("react") || lowercaseSkills.includes("javascript") || lowercaseSkills.includes("typescript")) {
-    list.push({
-      id: "rec-job-3",
-      title: "Frontend Developer (React / Next.js)",
-      company: "Vercel",
-      skillsRequired: ["React", "TypeScript", "Tailwind CSS"],
-      salary: "$115k - $140k",
-      experience: "1-3 Years",
-      type: "Remote",
-      matchScore: 96,
-      link: "https://linkedin.com/company/vercel/jobs"
-    });
-    list.push({
-      id: "rec-job-4",
-      title: "Full Stack Engineer (Node/React)",
-      company: "Stripe",
-      skillsRequired: ["React", "Node.js", "Express", "TypeScript"],
-      salary: "$130k - $165k",
-      experience: "3+ Years",
-      type: "Onsite",
-      matchScore: 89,
-      link: "https://linkedin.com/company/stripe/jobs"
-    });
-  }
-
-  // Fallbacks if no specific matches
-  if (list.length === 0) {
-    list.push({
-      id: "rec-job-5",
-      title: "Associate Software Engineer",
-      company: "Atlassian",
-      skillsRequired: ["JavaScript", "HTML", "CSS", "Git"],
-      salary: "$95k - $120k",
-      experience: "Entry Level",
-      type: "Remote",
-      matchScore: 78,
-      link: "https://linkedin.com/company/atlassian/jobs"
-    });
-    list.push({
-      id: "rec-job-6",
-      title: "Product Operations Lead",
-      company: "Notion",
-      skillsRequired: ["Agile", "Product Lifecycles", "Excel"],
-      salary: "$105k - $125k",
-      experience: "2+ Years",
-      type: "Hybrid",
-      matchScore: 71,
-      link: "https://linkedin.com/company/notion/jobs"
-    });
-  }
-
-  return res.json({ recommendations: list });
 });
 
-// Live vacancies mock crawl indexes from LinkedIn, Naukri, Indeed, Internshala
 app.get("/api/jobs/vacancies", (req, res) => {
   const { remote, hybrid, onsite, search } = req.query;
 
@@ -965,12 +1101,11 @@ app.get("/api/jobs/vacancies", (req, res) => {
     { id: "vac-1", company: "Google", title: "Cloud Technical Program Manager", location: "Mountain View, CA (Hybrid)", salary: "$160,000 - $210,000", experience: "5+ Years", type: "Hybrid", source: "LinkedIn", applyLink: "https://linkedin.com/company/google/jobs" },
     { id: "vac-2", company: "Zomato", title: "Backend Systems Developer (Python/Go)", location: "Gurugram, India (Onsite)", salary: "₹18,00,000 - ₹24,00,000", experience: "3+ Years", type: "Onsite", source: "Naukri", applyLink: "https://naukri.com" },
     { id: "vac-3", company: "Figma", title: "Product Designer - UI/UX Team", location: "San Francisco, CA (Remote)", salary: "$130,000 - $165,000", experience: "2+ Years", type: "Remote", source: "Indeed", applyLink: "https://indeed.com" },
-    { id: "vac-4", company: "Razorpay", title: "Frontend Platform Engineer", location: "Bengaluru, India (Hybrid)", salary: "₹12,00,000 - ₹16,00,000", experience: "1-3 Years", type: "Hybrid", source: "Internshala", applyLink: "https://internshala.com" },
+    { id: "vac-4", company: "Razorpay", title: "Frontend Platform Engineer", location: "Bengaluru, India (Hybrid)", salary: "₹12,0,000 - ₹16,00,000", experience: "1-3 Years", type: "Hybrid", source: "Internshala", applyLink: "https://internshala.com" },
     { id: "vac-5", company: "Meta", title: "React Infrastructure Engineer", location: "Remote, US", salary: "$170,000 - $220,000", experience: "4+ years", type: "Remote", source: "Indeed", applyLink: "https://indeed.com" },
-    { id: "vac-6", company: "CRED", title: "React Native Lead Engineer", location: "Bengaluru, India (Onsite)", salary: "₹24,00,000 - ₹32,00,000", experience: "5+ Years", type: "Onsite", source: "Naukri", applyLink: "https://naukri.com" }
+    { id: "vac-6", company: "CRED", title: "React Native Lead Engineer", location: "Bengaluru, India (Onsite)", salary: "₹24,0,00,000 - ₹32,0,00,000", experience: "5+ Years", type: "Onsite", source: "Naukri", applyLink: "https://naukri.com" }
   ];
 
-  // Apply filters
   if (remote === "true" || hybrid === "true" || onsite === "true") {
     vacancies = vacancies.filter(v => {
       if (remote === "true" && v.type === "Remote") return true;
@@ -988,9 +1123,7 @@ app.get("/api/jobs/vacancies", (req, res) => {
   return res.json({ vacancies });
 });
 
-// Company Suggestion Engine (Companies looking for specific stack)
 app.get("/api/jobs/companies", (req, res) => {
-  const db = loadDatabase();
   const companiesList = [
     { company: "Stripe", openRoles: 14, hiringStatus: "Aggressive", salaryRange: "$130,000 - $190,000", careerPage: "https://stripe.com/jobs", targetSkills: ["React", "Ruby", "TypeScript"] },
     { company: "Notion", openRoles: 6, hiringStatus: "Active", salaryRange: "$120,000 - $170,000", careerPage: "https://notion.so/careers", targetSkills: ["React", "Express", "PostgreSQL"] },
@@ -1000,7 +1133,6 @@ app.get("/api/jobs/companies", (req, res) => {
   ];
   return res.json({ companies: companiesList });
 });
-
 
 // --- CAREER ROADMAP & SKILL GAP ANALYSIS ENGINE ---
 app.post("/api/career/roadmap", async (req, res) => {
@@ -1013,7 +1145,6 @@ app.post("/api/career/roadmap", async (req, res) => {
     ? (Array.isArray(currentSkillsRaw) ? currentSkillsRaw : currentSkillsRaw.split(",").map((s: string) => s.trim()))
     : ["HTML", "CSS", "JavaScript"];
 
-  // Default Roadmapping data
   let missing = ["React", "Node.js", "MongoDB", "Git", "Docker"];
   let plan30Colors = ["Review intermediate Javascript concepts (ES6+, asynchronous hooks, promises)", "Learn basic styling templates using Tailwind utility classes", "Implement functional SPA using vanilla state parameters"];
   let plan60Colors = ["Integrate state management using state managers or browser indices", "Write full-stack modular server APIs using Node.js and Express", "Connect backend channels securely using database tables and queries"];
@@ -1057,28 +1188,30 @@ app.post("/api/career/roadmap", async (req, res) => {
     } catch (ignore) {}
   }
 
-  const db = loadDatabase();
-  const subReport: SkillGapReport = {
-    id: `gap-${Date.now()}`,
-    userId,
-    targetRole,
-    currentSkills,
-    missingSkills: missing,
-    roadmap: {
-      plan30Days: plan30Colors,
-      plan60Days: plan60Colors,
-      plan90Days: plan90Colors,
-      learningResources: resources
-    },
-    createdAt: new Date().toISOString()
-  };
+  try {
+    const subReport = {
+      id: `gap-${Date.now()}`,
+      userId,
+      targetRole,
+      currentSkills,
+      missingSkills: missing,
+      roadmap: {
+        plan30Days: plan30Colors,
+        plan60Days: plan60Colors,
+        plan90Days: plan90Colors,
+        learningResources: resources
+      },
+      createdAt: new Date().toISOString()
+    };
 
-  db.skillGaps.push(subReport);
-  saveDatabase(db);
+    await SkillGapReportModel.create(subReport);
 
-  return res.json({ report: subReport });
+    return res.json({ report: subReport });
+  } catch (err) {
+    console.error("Roadmap error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
-
 
 // --- AI INTERVIEW ASSISTANT & MOCK INTERVIEW EVALUATION ---
 app.post("/api/interview/questions", async (req, res) => {
@@ -1093,7 +1226,7 @@ app.post("/api/interview/questions", async (req, res) => {
     { id: "q2", category: "Technical" as const, question: "Briefly explain the structural difference between Virtual DOM and Shadow DOM when compiling React client instances.", sampleAnswer: "Virtual DOM tracks state differentials sequentially to batch repaint components on demand, while Shadow DOM encapsulates local stylesheets securely within native custom Web Elements." },
     { id: "q3", category: "Coding" as const, question: "Write a high-performance function to check the matching sequence of brackets in a given stream parameter.", sampleAnswer: "Push opening tokens into local arrays, then pop active brackets to evaluate symmetry against mapping constants." },
     { id: "q4", category: "Project" as const, question: "What was the most challenging technical project you designed, and how did you resolve scaling issues?", sampleAnswer: "I built an offline-first mobile sync tool. We resolved concurrency using unique timestamp markers on database rows." },
-    { id: "q5", category: "Behavioral" as const, question: "Describe a scenario where key project criteria changed overnight. How did you organize teamwork under pressure?", sampleAnswer: "I coordinated daily standups to isolate essential variables first, enabling our engineering branch to secure key features on time." }
+    { id: "q5", category: "Behavioral" as const, question: "Describe a scenario where key project criteria changed overnight. How did you organize teamwork under pressure?", sampleAnswer: "I coordinated daily standups to isolate active variables first, enabling our engineering branch to secure key features on time." }
   ];
 
   if (ai) {
@@ -1123,22 +1256,24 @@ app.post("/api/interview/questions", async (req, res) => {
     } catch (ignore) {}
   }
 
-  const db = loadDatabase();
-  const subPrep: InterviewPrep = {
-    id: `int-${Date.now()}`,
-    userId,
-    role: targetRole,
-    questions: questionSet,
-    timestamp: new Date().toISOString()
-  };
+  try {
+    const subPrep = {
+      id: `int-${Date.now()}`,
+      userId,
+      role: targetRole,
+      questions: questionSet,
+      timestamp: new Date().toISOString()
+    };
 
-  db.interviews.push(subPrep);
-  saveDatabase(db);
+    await InterviewPrepModel.create(subPrep);
 
-  return res.json({ interviewId: subPrep.id, role: subPrep.role, questions: subPrep.questions });
+    return res.json({ interviewId: subPrep.id, role: subPrep.role, questions: subPrep.questions });
+  } catch (err) {
+    console.error("Questions error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-// Evaluate users response for Mock Interview
 app.post("/api/interview/mock-evaluate", async (req, res) => {
   const { answerText, questionText } = req.body;
   if (!answerText) return res.status(400).json({ error: "Please write or dictate an answer to receive feedback." });
@@ -1190,7 +1325,6 @@ app.post("/api/interview/mock-evaluate", async (req, res) => {
   });
 });
 
-
 // --- AI COVER LETTER GENERATOR ---
 app.post("/api/career/cover-letter", async (req, res) => {
   const userId = getUserIdFromHeaders(req) || "guest-session";
@@ -1227,21 +1361,23 @@ Creative Candidate`;
     } catch (ignore) {}
   }
 
-  const db = loadDatabase();
-  const letterItem: CoverLetter = {
-    id: `letter-${Date.now()}`,
-    userId,
-    title: `Cover Letter - ${companyName} (${targetRole})`,
-    content: formattedLetter,
-    generatedAt: new Date().toISOString()
-  };
+  try {
+    const letterItem = {
+      id: `letter-${Date.now()}`,
+      userId,
+      title: `Cover Letter - ${companyName} (${targetRole})`,
+      content: formattedLetter,
+      generatedAt: new Date().toISOString()
+    };
 
-  db.coverLetters.push(letterItem);
-  saveDatabase(db);
+    await CoverLetterModel.create(letterItem);
 
-  return res.json({ letter: letterItem });
+    return res.json({ letter: letterItem });
+  } catch (err) {
+    console.error("Cover letter error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
-
 
 // --- PROFILE OPTIMIZER (LinkedIn & GitHub Analyzers) ---
 app.post("/api/profile/optimize", async (req, res) => {
@@ -1278,7 +1414,6 @@ app.post("/api/profile/optimize", async (req, res) => {
       } catch (ignore) {}
     }
   } else {
-    // GitHub
     headline = "Active GitHub Contributor | Node.js Systems";
     summary = "Developer deploying multi-container services with integrated CI/CD channels.";
     recommendations = [
@@ -1313,7 +1448,6 @@ app.post("/api/profile/optimize", async (req, res) => {
   return res.json({ headline, summary, recommendations });
 });
 
-
 // --- AI CAREER CHATBOT ---
 app.post("/api/chatbot/message", async (req, res) => {
   const userId = getUserIdFromHeaders(req) || "guest-session";
@@ -1321,7 +1455,6 @@ app.post("/api/chatbot/message", async (req, res) => {
 
   if (!text) return res.status(400).json({ error: "Please say something." });
 
-  // Fallback response list
   let aiAnswer = "Excellent query. I highly recommend conducting an ATS keyword density scan and aligning your resume formatting vertically so primary bots parse your education metadata seamlessly.";
 
   if (ai) {
@@ -1343,114 +1476,125 @@ app.post("/api/chatbot/message", async (req, res) => {
     } catch (ignore) {}
   }
 
-  const db = loadDatabase();
-  const msgUser: ChatMessage = { id: `chat-${Date.now()}-u`, userId, role: "user", message: text, timestamp: new Date().toISOString() };
-  const msgModel: ChatMessage = { id: `chat-${Date.now()}-a`, userId, role: "model", message: aiAnswer, timestamp: new Date().toISOString() };
+  try {
+    const msgUser = { id: `chat-${Date.now()}-u`, userId, role: "user", message: text, timestamp: new Date().toISOString() };
+    const msgModel = { id: `chat-${Date.now()}-a`, userId, role: "model", message: aiAnswer, timestamp: new Date().toISOString() };
 
-  db.chats.push(msgUser, msgModel);
-  saveDatabase(db);
+    await ChatMessageModel.create(msgUser);
+    await ChatMessageModel.create(msgModel);
 
-  return res.json({ reply: aiAnswer });
+    return res.json({ reply: aiAnswer });
+  } catch (err) {
+    console.error("Chat message error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
-
 
 // --- ANALYTICS & ADMIN OVERVIEW ENDPOINTS ---
-app.get("/api/admin/stats", (req, res) => {
-  const db = loadDatabase();
+app.get("/api/admin/stats", async (req, res) => {
+  try {
+    const totalUsers = await UserModel.countDocuments();
+    const totalResumes = await ResumeModel.countDocuments();
+    const totalATSAnalyses = await ResumeModel.countDocuments({ "atsReport.score": { $gt: 0 } });
 
-  // Compute common aggregate metrics for corporate overview dashboards
-  const totalUsers = db.users.length;
-  const totalResumes = db.resumes.length;
-  const totalATSAnalyses = db.resumes.filter(r => r.atsReport.score > 0).length;
-
-  const skillsCountMap: Record<string, number> = {};
-  db.resumes.forEach(r => {
-    r.parsedData.skills.forEach(skill => {
-      const key = skill.trim();
-      skillsCountMap[key] = (skillsCountMap[key] || 0) + 1;
+    const allResumes = await ResumeModel.find({});
+    const skillsCountMap: Record<string, number> = {};
+    allResumes.forEach(r => {
+      if (r.parsedData && r.parsedData.skills) {
+        r.parsedData.skills.forEach(skill => {
+          const key = skill.trim();
+          skillsCountMap[key] = (skillsCountMap[key] || 0) + 1;
+        });
+      }
     });
-  });
 
-  const commonSkills = Object.entries(skillsCountMap)
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
+    const commonSkills = Object.entries(skillsCountMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
 
-  const jobTally: Record<string, number> = {
-    "Full Stack Developer": 12,
-    "Frontend Developer": 9,
-    "Python Developer": 8,
-    "Data Analyst": 6,
-    "Machine Learning Engineer": 4
-  };
+    const jobTally: Record<string, number> = {
+      "Full Stack Developer": 12,
+      "Frontend Developer": 9,
+      "Python Developer": 8,
+      "Data Analyst": 6,
+      "Machine Learning Engineer": 4
+    };
 
-  const userAct = [
-    { day: "Mon", count: 18 },
-    { day: "Tue", count: 24 },
-    { day: "Wed", count: 32 },
-    { day: "Thu", count: 28 },
-    { day: "Fri", count: 41 },
-    { day: "Sat", count: 15 },
-    { day: "Sun", count: 22 }
-  ];
+    const userAct = [
+      { day: "Mon", count: 18 },
+      { day: "Tue", count: 24 },
+      { day: "Wed", count: 32 },
+      { day: "Thu", count: 28 },
+      { day: "Fri", count: 41 },
+      { day: "Sat", count: 15 },
+      { day: "Sun", count: 22 }
+    ];
 
-  return res.json({
-    totalUsers: totalUsers || 3,
-    totalResumes: totalResumes || 3,
-    totalATSAnalyses: totalATSAnalyses || 3,
-    mostCommonSkills: commonSkills.length ? commonSkills : [{ name: "React", count: 3 }, { name: "JavaScript", count: 3 }, { name: "Python", count: 2 }, { name: "SQL", count: 2 }, { name: "TypeScript", count: 1 }],
-    mostRecommendedJobs: Object.entries(jobTally).map(([name, count]) => ({ name, count })),
-    userActivity: userAct
-  });
+    return res.json({
+      totalUsers: totalUsers || 3,
+      totalResumes: totalResumes || 3,
+      totalATSAnalyses: totalATSAnalyses || 3,
+      mostCommonSkills: commonSkills.length ? commonSkills : [{ name: "React", count: 3 }, { name: "JavaScript", count: 3 }, { name: "Python", count: 2 }, { name: "SQL", count: 2 }, { name: "TypeScript", count: 1 }],
+      mostRecommendedJobs: Object.entries(jobTally).map(([name, count]) => ({ name, count })),
+      userActivity: userAct
+    });
+  } catch (err) {
+    console.error("Admin stats error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-app.get("/api/analytics/trends", (req, res) => {
-  const db = loadDatabase();
-  
-  // Categorization counts for resume qualities
-  let excellent = 0;
-  let strong = 0;
-  let good = 0;
-  let average = 0;
-  let needsImprovement = 0;
+app.get("/api/analytics/trends", async (req, res) => {
+  try {
+    const allResumes = await ResumeModel.find({});
+    
+    let excellent = 0;
+    let strong = 0;
+    let good = 0;
+    let average = 0;
+    let needsImprovement = 0;
 
-  db.resumes.forEach(r => {
-    const s = r.atsReport.score;
-    if (s >= 90) excellent++;
-    else if (s >= 80) strong++;
-    else if (s >= 70) good++;
-    else if (s >= 60) average++;
-    else needsImprovement++;
-  });
+    allResumes.forEach(r => {
+      const s = r.atsReport?.score || 0;
+      if (s >= 90) excellent++;
+      else if (s >= 80) strong++;
+      else if (s >= 70) good++;
+      else if (s >= 60) average++;
+      else needsImprovement++;
+    });
 
-  return res.json({
-    scoreCategories: [
-      { name: "Excellent (90-100)", value: excellent || 1 },
-      { name: "Strong (80-89)", value: strong || 1 },
-      { name: "Good (70-79)", value: good || 1 },
-      { name: "Average (60-69)", value: average || 0 },
-      { name: "Needs Improvement (<60)", value: needsImprovement || 0 }
-    ],
-    skillDemand: [
-      { name: "React", demand: 94 },
-      { name: "Node.js", demand: 86 },
-      { name: "Python", demand: 89 },
-      { name: "SQL", demand: 82 },
-      { name: "Docker", demand: 68 },
-      { name: "TypeScript", demand: 91 }
-    ],
-    qualityTrends: [
-      { month: "Jan", avgScore: 68 },
-      { month: "Feb", avgScore: 72 },
-      { month: "Mar", avgScore: 75 },
-      { month: "Apr", avgScore: 79 },
-      { month: "May", avgScore: 84 },
-      { month: "Jun", avgScore: 86 }
-    ]
-  });
+    return res.json({
+      scoreCategories: [
+        { name: "Excellent (90-100)", value: excellent || 1 },
+        { name: "Strong (80-89)", value: strong || 1 },
+        { name: "Good (70-79)", value: good || 1 },
+        { name: "Average (60-69)", value: average || 0 },
+        { name: "Needs Improvement (<60)", value: needsImprovement || 0 }
+      ],
+      skillDemand: [
+        { name: "React", demand: 94 },
+        { name: "Node.js", demand: 86 },
+        { name: "Python", demand: 89 },
+        { name: "SQL", demand: 82 },
+        { name: "Docker", demand: 68 },
+        { name: "TypeScript", demand: 91 }
+      ],
+      qualityTrends: [
+        { month: "Jan", avgScore: 68 },
+        { month: "Feb", avgScore: 72 },
+        { month: "Mar", avgScore: 75 },
+        { month: "Apr", avgScore: 79 },
+        { month: "May", avgScore: 84 },
+        { month: "Jun", avgScore: 86 }
+      ]
+    });
+  } catch (err) {
+    console.error("Trends error:", err);
+    return res.status(500).json({ error: "Internal server error." });
+  }
 });
 
-// Seed API key state endpoint for user UI awareness
 app.get("/api/dev/secrets-config", (req, res) => {
   res.json({
     hasKey: !!apiKey && apiKey !== "MY_GEMINI_API_KEY",
@@ -1462,6 +1606,15 @@ app.get("/api/dev/secrets-config", (req, res) => {
 // VITE AND STATIC ASSETS ROUTING MIDDLEWARE
 // ---------------------------------------------------------
 async function startServer() {
+  console.log("Connecting to MongoDB...");
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/resume_screening");
+    console.log("Connected to MongoDB successfully!");
+    await seedDatabaseIfEmpty();
+  } catch (err) {
+    console.error("MongoDB connection failed:", err);
+  }
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
