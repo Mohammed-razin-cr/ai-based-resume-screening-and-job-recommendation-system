@@ -671,9 +671,10 @@
   display: none !important;
 }
 
-.hatch-theme [class*="bg-gradient-to-tr"] {
+.hatch-theme [class*="bg-gradient"] {
   background: var(--color-mint-splash) !important;
   background-image: none !important;
+  color: var(--color-ink-black) !important;
   border: 1px solid var(--color-ink-black) !important;
   box-shadow: none !important;
 }
@@ -753,10 +754,13 @@
 
 .hatch-theme input::placeholder,
 .hatch-theme textarea::placeholder {
-  color: #666 !important;
+  color: rgba(0, 0, 0, 0.6) !important;
 }
 
-.hatch-theme label,
+.hatch-theme label {
+  color: var(--color-ink-black) !important;
+}
+
 .hatch-theme p,
 .hatch-theme span,
 .hatch-theme div,
@@ -767,8 +771,34 @@
   color: inherit;
 }
 
+.hatch-theme label,
+.hatch-theme label span,
+.hatch-theme label * {
+  color: var(--color-ink-black) !important;
+}
+
+.hatch-theme .text-slate-400,
+.hatch-theme .text-slate-500,
+.hatch-theme [class*="text-slate-400"],
+.hatch-theme [class*="text-slate-500"] {
+  color: var(--color-charcoal) !important;
+}
+
+.hatch-theme .text-white,
+.hatch-theme .text-slate-100,
+.hatch-theme .text-slate-200,
+.hatch-theme .text-slate-300,
+.hatch-theme .text-pink-400,
+.hatch-theme .text-pink-300,
+.hatch-theme .text-pink-500,
+.hatch-theme .text-pink-600,
+.hatch-theme .text-emerald-400,
+.hatch-theme .text-yellow-400,
 .hatch-theme [class*="text-white"],
-.hatch-theme [class*="text-slate"],
+.hatch-theme [class*="text-slate-100"],
+.hatch-theme [class*="text-slate-200"],
+.hatch-theme [class*="text-slate-300"],
+.hatch-theme [class*="text-slate"]:not([class*="slate-400"]):not([class*="slate-500"]),
 .hatch-theme [class*="text-pink"],
 .hatch-theme [class*="text-purple"],
 .hatch-theme [class*="text-fuchsia"],

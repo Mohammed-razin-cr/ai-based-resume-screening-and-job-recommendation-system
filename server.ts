@@ -13,6 +13,14 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 
 app.use(express.json({ limit: "25mb" }));
 
+app.use((req, res, next) => {
+  console.log(`[API REQUEST] ${req.method} ${req.url}`);
+  res.on("finish", () => {
+    console.log(`[API RESPONSE] ${req.method} ${req.url} -> ${res.statusCode}`);
+  });
+  next();
+});
+
 // ---------------------------------------------------------
 // MONGOOSE SCHEMAS & MODELS
 // ---------------------------------------------------------
