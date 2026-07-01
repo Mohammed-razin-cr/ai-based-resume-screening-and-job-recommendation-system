@@ -457,3 +457,765 @@
 .rank-card.rank-1:hover { border-color: rgba(234,179,8,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(234,179,8,0.1); }
 .rank-card.rank-2 { border-color: rgba(148,163,184,0.25); }
 .rank-card.rank-3 { border-color: rgba(180,130,80,0.25); }
+
+/* ========================
+   PREMIUM UI ENHANCEMENTS
+   ======================== */
+
+/* Futuristic Dropzone Marching Ants Animation */
+.futuristic-dropzone {
+  position: relative;
+  background: rgba(18, 4, 22, 0.45) !important;
+  border: 2px dashed rgba(236, 72, 153, 0.2) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden;
+  padding: 32px !important;
+}
+
+.futuristic-dropzone:hover, .futuristic-dropzone.drag-active {
+  background: rgba(236, 72, 153, 0.05) !important;
+  border-color: rgba(236, 72, 153, 0.8) !important;
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.12), inset 0 0 15px rgba(236, 72, 153, 0.05) !important;
+}
+
+/* Floating animation for icons */
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite !important;
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Shimmering button background sweep */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 30%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  transition: all 0.6s ease;
+  pointer-events: none;
+}
+
+.btn-shimmer:hover::after {
+  left: 130%;
+  transition: all 1s ease;
+}
+
+/* Verified Badge Pulse */
+@keyframes checkmark-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.pulse-verified {
+  animation: checkmark-pulse 2s infinite;
+}
+
+/* Premium Card hover glowing border */
+.glowing-card {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.glowing-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.15));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0.8;
+}
+
+.glowing-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(236, 72, 153, 0.1) !important;
+}
+
+.glowing-card:hover::before {
+  background: linear-gradient(135deg, rgba(236,72,153,0.6), rgba(139,92,246,0.6));
+  opacity: 1;
+}
+
+/* ========================
+   HATCH PASTEL ZINE THEME
+   ======================== */
+.hatch-theme {
+  --color-cream-paper: #f5f4f0;
+  --color-pure-white: #ffffff;
+  --color-ink-black: #000000;
+  --color-charcoal: #222222;
+  --color-slate: #333333;
+  --color-fog: #dddfe2;
+  --color-mint-splash: #99ffcc;
+  --color-plum-ink: #160042;
+  --color-aubergine: #26153f;
+  --color-sky-pop: #7bbbff;
+  --color-bubblegum: #ff99cc;
+  --color-peach-pop: #ffcc99;
+  --font-recoleta: "DM Serif Display", Georgia, "Times New Roman", serif;
+  --font-lota-grotes-que-alt: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hatch-theme {
+  background: var(--color-cream-paper) !important;
+  background-image: none !important;
+  color: var(--color-ink-black) !important;
+  font-family: var(--font-lota-grotes-que-alt) !important;
+}
+
+.hatch-theme h1,
+.hatch-theme h2,
+.hatch-theme h3,
+.hatch-theme .text-shimmer,
+.hatch-theme [class*="font-extrabold"] {
+  font-family: var(--font-recoleta) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  color: var(--color-ink-black) !important;
+}
+
+.hatch-theme h1 {
+  line-height: 1.03 !important;
+  max-width: 900px;
+}
+
+.hatch-theme .text-shimmer {
+  position: relative;
+  display: inline-block;
+  background: none !important;
+  -webkit-text-fill-color: var(--color-ink-black) !important;
+}
+
+.hatch-theme .text-transparent,
+.hatch-theme .bg-clip-text {
+  background: none !important;
+  -webkit-text-fill-color: var(--color-ink-black) !important;
+}
+
+.hatch-theme .text-shimmer::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -0.12em;
+  right: -0.14em;
+  bottom: 0.06em;
+  height: 0.58em;
+  background: var(--color-mint-splash);
+  border-radius: 48% 52% 45% 55% / 60% 45% 55% 40%;
+  transform: rotate(-1.5deg);
+}
+
+.hatch-theme header,
+.hatch-theme aside,
+.hatch-theme main,
+.hatch-theme .glass-panel,
+.hatch-theme .glass-card-inset,
+.hatch-theme .card,
+.hatch-theme .card-inset,
+.hatch-theme .rank-card,
+.hatch-theme .glowing-card {
+  background: var(--color-pure-white) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--color-ink-black) !important;
+  box-shadow: none !important;
+  color: var(--color-ink-black) !important;
+}
+
+.hatch-theme main,
+.hatch-theme main[class*="bg-gradient"] {
+  background: color-mix(in srgb, var(--color-cream-paper) 72%, transparent) !important;
+}
+
+.hatch-theme header {
+  background: color-mix(in srgb, var(--color-cream-paper) 92%, white) !important;
+  border-bottom: 1px solid var(--color-ink-black) !important;
+}
+
+.hatch-theme .blur-3xl {
+  display: none !important;
+}
+
+.hatch-theme [class*="bg-gradient-to-tr"] {
+  background: var(--color-mint-splash) !important;
+  background-image: none !important;
+  border: 1px solid var(--color-ink-black) !important;
+  box-shadow: none !important;
+}
+
+.hatch-theme div[class*="bg-purple"],
+.hatch-theme div[class*="bg-pink"],
+.hatch-theme div[class*="bg-[#"] {
+  background: var(--color-pure-white) !important;
+  border-color: var(--color-ink-black) !important;
+  box-shadow: none !important;
+}
+
+.hatch-theme aside {
+  border-right: 1px solid var(--color-ink-black) !important;
+}
+
+.hatch-theme .glass-panel,
+.hatch-theme .card,
+.hatch-theme .rank-card,
+.hatch-theme .glowing-card {
+  border: 1px solid var(--color-ink-black) !important;
+  border-radius: 16px !important;
+}
+
+.hatch-theme .glass-card-inset,
+.hatch-theme .card-inset {
+  border: 1px solid var(--color-ink-black) !important;
+  border-radius: 12px !important;
+  background: var(--color-cream-paper) !important;
+}
+
+.hatch-theme .glowing-card::before,
+.hatch-theme .rank-card::before,
+.hatch-theme .btn-shimmer::after {
+  display: none !important;
+}
+
+.hatch-theme button,
+.hatch-theme .btn-primary {
+  background: var(--color-mint-splash) !important;
+  background-image: none !important;
+  color: var(--color-ink-black) !important;
+  border: 1px solid var(--color-ink-black) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+}
+
+.hatch-theme .btn-ghost,
+.hatch-theme button[class*="bg-white"],
+.hatch-theme button[class*="bg-purple"],
+.hatch-theme button[class*="bg-[#"] {
+  background: transparent !important;
+  color: var(--color-ink-black) !important;
+  border: 1px solid var(--color-ink-black) !important;
+}
+
+.hatch-theme button:hover,
+.hatch-theme .glass-panel-hover:hover,
+.hatch-theme .glowing-card:hover,
+.hatch-theme .rank-card:hover {
+  transform: translateY(-1px) rotate(-0.2deg) !important;
+  border-color: var(--color-ink-black) !important;
+  box-shadow: none !important;
+}
+
+.hatch-theme input,
+.hatch-theme textarea,
+.hatch-theme select {
+  background: var(--color-pure-white) !important;
+  color: var(--color-ink-black) !important;
+  border: 1px solid var(--color-ink-black) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  font-family: var(--font-lota-grotes-que-alt) !important;
+}
+
+.hatch-theme input::placeholder,
+.hatch-theme textarea::placeholder {
+  color: #666 !important;
+}
+
+.hatch-theme label,
+.hatch-theme p,
+.hatch-theme span,
+.hatch-theme div,
+.hatch-theme a,
+.hatch-theme li,
+.hatch-theme td,
+.hatch-theme th {
+  color: inherit;
+}
+
+.hatch-theme [class*="text-white"],
+.hatch-theme [class*="text-slate"],
+.hatch-theme [class*="text-pink"],
+.hatch-theme [class*="text-purple"],
+.hatch-theme [class*="text-fuchsia"],
+.hatch-theme [class*="text-indigo"],
+.hatch-theme [class*="text-emerald"],
+.hatch-theme [class*="text-rose"],
+.hatch-theme [class*="text-yellow"],
+.hatch-theme [class*="text-amber"],
+.hatch-theme [class*="text-blue"],
+.hatch-theme [class*="text-sky"] {
+  color: var(--color-ink-black) !important;
+}
+
+.hatch-theme svg:not(.hatch-illustration svg),
+.hatch-theme svg *:not([fill="#99ffcc"]):not([fill="#7bbbff"]):not([fill="#ff99cc"]):not([fill="#ffcc99"]) {
+  color: var(--color-ink-black) !important;
+  stroke: currentColor;
+}
+
+.hatch-theme .badge,
+.hatch-theme .skill-tag,
+.hatch-theme span[class*="rounded"],
+.hatch-theme div[class*="rounded-full"] {
+  background: var(--color-pure-white) !important;
+  border: 1px solid var(--color-ink-black) !important;
+  color: var(--color-ink-black) !important;
+  border-radius: 9999px !important;
+}
+
+.hatch-theme .skill-tag:nth-child(4n + 1),
+.hatch-theme span[class*="rounded"]:nth-child(4n + 1) {
+  background: var(--color-peach-pop) !important;
+}
+
+.hatch-theme .skill-tag:nth-child(4n + 2),
+.hatch-theme span[class*="rounded"]:nth-child(4n + 2) {
+  background: var(--color-sky-pop) !important;
+}
+
+.hatch-theme .skill-tag:nth-child(4n + 3),
+.hatch-theme span[class*="rounded"]:nth-child(4n + 3) {
+  background: var(--color-bubblegum) !important;
+}
+
+.hatch-theme .progress-track {
+  background: var(--color-pure-white) !important;
+  border: 1px solid var(--color-ink-black) !important;
+  height: 10px !important;
+}
+
+.hatch-theme .progress-fill,
+.hatch-theme .progress-fill-green {
+  background: var(--color-mint-splash) !important;
+}
+
+.hatch-theme .futuristic-dropzone,
+.hatch-theme .drop-zone {
+  background: var(--color-pure-white) !important;
+  border: 2px dashed var(--color-ink-black) !important;
+  box-shadow: none !important;
+}
+
+.hatch-theme .chat-bubble-user {
+  background: var(--color-mint-splash) !important;
+  color: var(--color-ink-black) !important;
+  border: 1px solid var(--color-ink-black) !important;
+}
+
+.hatch-theme .chat-bubble-ai {
+  background: var(--color-pure-white) !important;
+  color: var(--color-ink-black) !important;
+  border: 1px solid var(--color-ink-black) !important;
+}
+
+.hatch-confetti {
+  animation: hatchParticleFloat 8s ease-in-out infinite;
+  border: 0 !important;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px var(--color-ink-black);
+  opacity: 0.85;
+}
+
+.hatch-swash {
+  background: var(--color-mint-splash);
+  border-radius: 48% 52% 44% 56% / 62% 43% 57% 38%;
+  transform: rotate(-4deg);
+  animation: hatchSwashDrift 9s ease-in-out infinite;
+  border: 1px solid var(--color-ink-black);
+}
+
+.hatch-swash-pink {
+  background: var(--color-bubblegum);
+  transform: rotate(5deg);
+  animation-duration: 11s;
+  animation-delay: -3s;
+}
+
+.animated-bg {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 34%),
+    radial-gradient(circle at 18% 22%, rgba(153, 255, 204, 0.50), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(123, 187, 255, 0.42), transparent 26%),
+    radial-gradient(circle at 58% 86%, rgba(255, 204, 153, 0.45), transparent 30%),
+    var(--color-cream-paper);
+}
+
+.bg-flow {
+  position: absolute;
+  width: clamp(96px, 16vw, 210px);
+  aspect-ratio: 1;
+  border: 1px solid var(--color-ink-black);
+  border-radius: 44% 56% 62% 38% / 48% 42% 58% 52%;
+  opacity: 0.34;
+  mix-blend-mode: multiply;
+  filter: saturate(1.04);
+}
+
+.bg-flow-mint {
+  left: 7%;
+  top: 18%;
+  background: var(--color-mint-splash);
+  animation: bgFlowOne 18s ease-in-out infinite;
+}
+
+.bg-flow-sky {
+  right: 9%;
+  top: 16%;
+  background: var(--color-sky-pop);
+  animation: bgFlowTwo 22s ease-in-out infinite;
+}
+
+.bg-flow-peach {
+  left: 44%;
+  bottom: 12%;
+  background: var(--color-peach-pop);
+  animation: bgFlowThree 24s ease-in-out infinite;
+}
+
+.bg-scan-grid {
+  position: absolute;
+  inset: -60px;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(var(--color-ink-black) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-ink-black) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at 50% 42%, black, transparent 72%);
+  animation: bgGridSlide 16s linear infinite;
+}
+
+.hatch-illustration {
+  width: min(360px, 92vw);
+  aspect-ratio: 360 / 320;
+  height: auto;
+  animation: hatchFloat 6s ease-in-out infinite;
+}
+
+.hatch-illustration svg {
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hatch-mascot {
+  transform-origin: 292px 246px;
+  animation: hatchWinkBob 4s ease-in-out infinite;
+}
+
+.hatch-play {
+  transform-origin: 178px 174px;
+  animation: hatchPulse 3s ease-in-out infinite;
+}
+
+.hatch-stat-chip {
+  background: var(--color-mint-splash);
+  border: 1px solid var(--color-ink-black);
+  border-radius: 9999px;
+  color: var(--color-ink-black);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+.hatch-stat-chip span {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.hatch-stat-chip-peach {
+  background: var(--color-peach-pop);
+}
+
+@keyframes hatchFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes bgFlowOne {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); }
+  35% { transform: translate3d(5vw, 3vh, 0) rotate(8deg) scale(1.08); }
+  70% { transform: translate3d(2vw, 7vh, 0) rotate(-2deg) scale(0.94); }
+}
+
+@keyframes bgFlowTwo {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(7deg) scale(1); }
+  38% { transform: translate3d(-5vw, 5vh, 0) rotate(-11deg) scale(1.06); }
+  74% { transform: translate3d(-3vw, -3vh, 0) rotate(3deg) scale(0.96); }
+}
+
+@keyframes bgFlowThree {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(2deg) scale(1); }
+  45% { transform: translate3d(-6vw, -5vh, 0) rotate(12deg) scale(1.12); }
+  78% { transform: translate3d(4vw, -4vh, 0) rotate(-8deg) scale(0.98); }
+}
+
+@keyframes bgGridSlide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(54px, 54px, 0); }
+}
+
+@keyframes hatchParticleFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); opacity: 0.45; }
+  40% { transform: translate3d(18px, -28px, 0) rotate(20deg) scale(1.18); opacity: 0.95; }
+  70% { transform: translate3d(-14px, -12px, 0) rotate(-12deg) scale(0.92); opacity: 0.72; }
+}
+
+@keyframes hatchSwashDrift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(22px, -18px, 0) rotate(6deg); }
+}
+
+@keyframes hatchPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes hatchWinkBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(1deg); }
+}
+
+@media (min-width: 1024px) {
+  .hatch-theme h1 {
+    font-size: clamp(64px, 6vw, 84px) !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hatch-theme {
+    min-height: 100dvh !important;
+  }
+
+  .hatch-theme section {
+    padding-left: clamp(20px, 5vw, 48px) !important;
+    padding-right: clamp(20px, 5vw, 48px) !important;
+  }
+
+  .hatch-theme h1 {
+    font-size: clamp(52px, 9vw, 72px) !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .hatch-theme h2 {
+    font-size: clamp(30px, 5vw, 44px) !important;
+  }
+
+  .hatch-theme .hatch-illustration {
+    width: min(420px, 86vw);
+    margin: 4px auto 0;
+  }
+
+  .hatch-theme header > div:first-child {
+    min-width: 0;
+  }
+
+  .hatch-theme header nav,
+  .hatch-theme header nav > div {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .hatch-theme main[class*="p-6"] {
+    padding: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hatch-theme.h-screen {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow: visible !important;
+  }
+
+  .hatch-theme.flex {
+    flex-direction: column !important;
+  }
+
+  .hatch-theme header {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    height: auto !important;
+    padding: 14px 18px !important;
+  }
+
+  .hatch-theme nav {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .hatch-theme header button,
+  .hatch-theme nav button {
+    min-height: 38px;
+    flex: 1 1 auto;
+    padding: 8px 12px !important;
+  }
+
+  .hatch-theme aside {
+    position: relative !important;
+    width: 100% !important;
+    max-height: none !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--color-ink-black) !important;
+  }
+
+  .hatch-theme aside nav {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px !important;
+  }
+
+  .hatch-theme aside nav button {
+    justify-content: flex-start !important;
+    padding: 10px 12px !important;
+  }
+
+  .hatch-theme aside > div:last-child {
+    display: none !important;
+  }
+
+  .hatch-theme .flex-1[class*="overflow-hidden"] {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .hatch-theme main[class*="overflow-y-auto"] {
+    overflow: visible !important;
+    padding: 16px !important;
+  }
+
+  .hatch-theme section {
+    padding-top: 34px !important;
+    padding-bottom: 40px !important;
+  }
+
+  .hatch-theme h1 {
+    font-size: clamp(44px, 14vw, 56px) !important;
+    line-height: 0.98 !important;
+  }
+
+  .hatch-theme p {
+    font-size: 16px !important;
+    line-height: 1.55 !important;
+  }
+
+  .hatch-theme .hatch-illustration {
+    width: min(330px, 88vw);
+    margin-top: -8px;
+  }
+
+  .hatch-theme .hatch-stat-chip {
+    font-size: 10px;
+    padding: 6px 9px;
+  }
+
+  .hatch-theme .grid {
+    gap: 16px !important;
+  }
+
+  .hatch-theme section:first-of-type .flex.gap-6 {
+    gap: 14px !important;
+  }
+
+  .hatch-theme section:first-of-type .text-2xl {
+    font-size: 22px !important;
+  }
+
+  .hatch-theme section:first-of-type .mt-16 {
+    margin-top: 36px !important;
+  }
+
+  .hatch-theme [class*="rounded-2xl"],
+  .hatch-theme .glass-panel,
+  .hatch-theme .card {
+    border-radius: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hatch-theme header > div:first-child {
+    width: 100%;
+  }
+
+  .hatch-theme header nav > div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+  }
+
+  .hatch-theme header nav button:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .hatch-theme h1 {
+    font-size: clamp(40px, 15vw, 52px) !important;
+  }
+
+  .hatch-theme .hatch-illustration {
+    width: min(288px, 82vw);
+  }
+
+  .hatch-theme section:first-of-type .mb-10 {
+    margin-bottom: 24px !important;
+  }
+
+  .hatch-theme section:first-of-type .mb-8 {
+    margin-bottom: 20px !important;
+  }
+
+  .hatch-theme section:first-of-type .py-4 {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .hatch-theme aside nav {
+    grid-template-columns: 1fr;
+  }
+
+  .hatch-theme .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hatch-theme button {
+    width: 100%;
+    justify-content: center;
+  }
+}

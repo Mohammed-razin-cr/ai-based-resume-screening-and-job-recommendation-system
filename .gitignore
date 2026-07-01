@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+__pycache__/
+db.json
+resume_app.db
+check_db.py
+test_performance.py
+PERFORMANCE_OPTIMIZATIONS.md

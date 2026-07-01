@@ -3,7 +3,8 @@ import {
   FileText, Upload, Sparkles, AlertTriangle, CheckCircle, TrendingUp, BarChart3,
   Search, Briefcase, MapPin, DollarSign, ExternalLink, RefreshCw, Trophy, Users,
   MessageSquare, BookOpen, Layers, Award, User, HelpCircle, ArrowRight, Video,
-  X, Play, Edit3, Key, Mail, ShieldAlert, ChevronRight, LogOut, FileCode, Check, Send, Download
+  X, Play, Edit3, Key, Mail, ShieldAlert, ChevronRight, LogOut, FileCode, Check, Send, Download,
+  Palette
 } from "lucide-react";
 
 
@@ -11,196 +12,84 @@ import {
 function AnimatedBackground() {
   const particles = Array.from({ length: 18 }, (_, i) => ({
     id: i,
-    left: `${5 + (i * 5.2) % 90}%`,
-    delay: `${(i * 0.7) % 8}s`,
-    duration: `${8 + (i * 1.3) % 10}s`,
-    size: `${2 + (i % 3)}px`,
-    color: i % 3 === 0 ? 'rgba(236,72,153,0.6)' : i % 3 === 1 ? 'rgba(139,92,246,0.5)' : 'rgba(244,114,182,0.4)',
+    left: `${8 + (i * 5.1) % 84}%`,
+    top: `${10 + (i * 7.7) % 78}%`,
+    delay: `${(i * 0.35) % 4}s`,
+    size: `${6 + (i % 4) * 2}px`,
+    color: ['#ff99cc', '#7bbbff', '#ffcc99', '#99ffcc'][i % 4],
   }));
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Animated gradient blobs */}
-      <div className="bg-blob-1 absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full"
-           style={{ background: 'radial-gradient(circle, rgba(219,39,119,0.12) 0%, transparent 70%)' }} />
-      <div className="bg-blob-2 absolute top-[20%] right-[-8%] w-[600px] h-[600px] rounded-full"
-           style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%)' }} />
-      <div className="bg-blob-3 absolute bottom-[-10%] left-[30%] w-[500px] h-[500px] rounded-full"
-           style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)' }} />
-      {/* Floating particles */}
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 animated-bg">
+      <div className="bg-flow bg-flow-mint" />
+      <div className="bg-flow bg-flow-sky" />
+      <div className="bg-flow bg-flow-peach" />
+      <div className="bg-scan-grid" />
       {particles.map(p => (
         <div
           key={p.id}
-          className="absolute bottom-0 rounded-full"
+          className="absolute hatch-confetti"
           style={{
             left: p.left,
+            top: p.top,
             width: p.size,
             height: p.size,
             backgroundColor: p.color,
-            animation: `particle ${p.duration} ${p.delay} ease-in infinite`,
-            boxShadow: `0 0 6px ${p.color}`,
+            animationDelay: p.delay,
           }}
         />
       ))}
-      {/* Grid overlay */}
-      <div className="absolute inset-0 opacity-[0.025]"
-           style={{ backgroundImage: 'linear-gradient(rgba(236,72,153,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(236,72,153,0.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      <div className="absolute left-[4%] bottom-[12%] h-16 w-28 hatch-swash opacity-70" />
+      <div className="absolute right-[8%] top-[18%] h-12 w-24 hatch-swash hatch-swash-pink opacity-60" />
     </div>
   );
 }
 
 // ── Animated 3D Orb ─────────────────────────────────────────────────────
 function Animated3DOrb() {
-  const orbRef = React.useRef<SVGSVGElement>(null);
-
-  React.useEffect(() => {
-    const el = orbRef.current;
-    if (!el) return;
-    const handleMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (e.clientX - cx) / rect.width;
-      const dy = (e.clientY - cy) / rect.height;
-      el.style.transform = `rotateY(${dx * 18}deg) rotateX(${-dy * 14}deg)`;
-    };
-    window.addEventListener('mousemove', handleMove);
-    return () => window.removeEventListener('mousemove', handleMove);
-  }, []);
-
   return (
-    <div className="animate-orb-float relative flex items-center justify-center select-none"
-         style={{ width: 320, height: 320 }}>
-      {/* Glow beneath */}
-      <div className="absolute inset-0 rounded-full"
-           style={{ background: 'radial-gradient(ellipse at 50% 120%, rgba(219,39,119,0.35) 0%, transparent 65%)', filter: 'blur(16px)' }} />
-      <svg
-        ref={orbRef}
-        viewBox="0 0 300 300"
-        width="300"
-        height="300"
-        style={{ transformStyle: 'preserve-3d', transition: 'transform 0.15s ease', willChange: 'transform' }}
-      >
+    <div className="hatch-illustration relative select-none">
+      <svg viewBox="0 0 360 320" width="360" height="320" role="img" aria-label="Playful resume screening illustration">
         <defs>
-          {/* Core sphere gradient */}
-          <radialGradient id="sphereGrad" cx="38%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#e879f9" stopOpacity="0.95" />
-            <stop offset="40%" stopColor="#a855f7" stopOpacity="0.85" />
-            <stop offset="75%" stopColor="#6d28d9" stopOpacity="0.80" />
-            <stop offset="100%" stopColor="#1e0533" stopOpacity="0.95" />
-          </radialGradient>
-          {/* Specular highlight */}
-          <radialGradient id="specular" cx="30%" cy="28%" r="30%">
-            <stop offset="0%" stopColor="white" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </radialGradient>
-          {/* Inner glow */}
-          <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#f0abfc" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
-          </radialGradient>
-          {/* Ring gradient */}
-          <linearGradient id="ring1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#f472b6" stopOpacity="0.9" />
-            <stop offset="50%" stopColor="#c084fc" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#f472b6" stopOpacity="0.9" />
-          </linearGradient>
-          <linearGradient id="ring2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#818cf8" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.8" />
-          </linearGradient>
-          <linearGradient id="ring3Grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#ec4899" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="#d946ef" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#ec4899" stopOpacity="0.6" />
-          </linearGradient>
-          {/* Scan line clip */}
-          <clipPath id="orbClip">
-            <circle cx="150" cy="150" r="96" />
-          </clipPath>
-          <filter id="softBlur">
-            <feGaussianBlur stdDeviation="1.5" />
+          <filter id="roughPaper">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" />
           </filter>
         </defs>
-
-        {/* Outer ambient glow ring */}
-        <circle cx="150" cy="150" r="118" fill="none" stroke="rgba(236,72,153,0.08)" strokeWidth="24" />
-        <circle cx="150" cy="150" r="105" fill="none" stroke="rgba(168,85,247,0.06)" strokeWidth="16" />
-
-        {/* Orbit Ring 1 */}
-        <g className="orb-ring-1" style={{ transformOrigin: '150px 150px' }}>
-          <ellipse cx="150" cy="150" rx="130" ry="36" fill="none" stroke="url(#ring1Grad)" strokeWidth="1.8" />
-        </g>
-        {/* Orbit Ring 2 */}
-        <g className="orb-ring-2" style={{ transformOrigin: '150px 150px' }}>
-          <ellipse cx="150" cy="150" rx="118" ry="28" fill="none" stroke="url(#ring2Grad)" strokeWidth="1.4" />
-        </g>
-        {/* Orbit Ring 3 */}
-        <g className="orb-ring-3" style={{ transformOrigin: '150px 150px' }}>
-          <ellipse cx="150" cy="150" rx="142" ry="20" fill="none" stroke="url(#ring3Grad)" strokeWidth="1.1" />
-        </g>
-
-        {/* Core sphere */}
-        <circle cx="150" cy="150" r="90" fill="url(#sphereGrad)" />
-        {/* Inner glow overlay */}
-        <circle cx="150" cy="150" r="90" fill="url(#innerGlow)" />
-        {/* Specular highlight */}
-        <circle cx="150" cy="150" r="90" fill="url(#specular)" />
-
-        {/* Latitude lines on sphere */}
-        <g clipPath="url(#orbClip)" opacity="0.15" filter="url(#softBlur)">
-          {[-55,-35,-15,5,25,45,65].map((offset, i) => (
-            <ellipse key={i} cx="150" cy={150 + offset} rx="90" ry={Math.max(4, 90 * Math.cos(Math.asin(Math.min(1, Math.abs(offset)/90))))} fill="none" stroke="white" strokeWidth="0.6" />
-          ))}
-          {/* Longitude lines */}
-          {[0,30,60,90,120,150].map((angle, i) => (
-            <ellipse key={`lon-${i}`} cx="150" cy="150" rx={6 + (i*2)} ry="90" fill="none" stroke="white" strokeWidth="0.5" transform={`rotate(${angle} 150 150)`} />
-          ))}
-        </g>
-
-        {/* Scan line effect */}
-        <g clipPath="url(#orbClip)">
-          <rect className="orb-scan" x="54" y="0" width="192" height="8"
-                fill="none" stroke="rgba(240,171,252,0.5)" strokeWidth="1" />
-        </g>
-
-        {/* Floating data dots on surface */}
-        {[
-          { cx: 185, cy: 120, r: 3, color: '#f472b6', delay: '0s' },
-          { cx: 118, cy: 175, r: 2.5, color: '#a78bfa', delay: '0.8s' },
-          { cx: 200, cy: 160, r: 2, color: '#34d399', delay: '1.6s' },
-          { cx: 105, cy: 128, r: 2, color: '#60a5fa', delay: '2.4s' },
-          { cx: 165, cy: 200, r: 3, color: '#f59e0b', delay: '3.2s' },
-        ].map((dot, i) => (
-          <circle key={i} cx={dot.cx} cy={dot.cy} r={dot.r} fill={dot.color}
-                  style={{ animation: `particleDrift ${2 + i * 0.5}s ${dot.delay} ease-in-out infinite` }}>
-            <animate attributeName="opacity" values="0.5;1;0.5" dur={`${2 + i * 0.4}s`} begin={dot.delay} repeatCount="indefinite" />
-          </circle>
+        <rect x="18" y="38" width="282" height="222" rx="18" fill="#f5f4f0" stroke="#000" strokeWidth="2" filter="url(#roughPaper)" />
+        <path d="M66 92 C116 120 144 158 178 174" fill="none" stroke="#ffcc99" strokeWidth="4" strokeLinecap="round" />
+        <path d="M70 206 C118 182 144 164 178 174" fill="none" stroke="#7bbbff" strokeWidth="4" strokeLinecap="round" />
+        <path d="M252 92 C220 122 202 150 178 174" fill="none" stroke="#ff99cc" strokeWidth="4" strokeLinecap="round" />
+        <path d="M254 216 C222 198 202 184 178 174" fill="none" stroke="#99ffcc" strokeWidth="4" strokeLinecap="round" />
+        {[{x:64,y:92,t:'ATS'}, {x:64,y:206,t:'CV'}, {x:252,y:92,t:'JOB'}, {x:252,y:216,t:'AI'}].map((n) => (
+          <g key={n.t}>
+            <rect x={n.x - 28} y={n.y - 18} width="56" height="36" rx="14" fill="#fff" stroke="#000" strokeWidth="2" />
+            <text x={n.x} y={n.y + 5} textAnchor="middle" fontSize="13" fontWeight="700" fill="#000">{n.t}</text>
+          </g>
         ))}
-
-        {/* Center sparkle */}
-        <g transform="translate(150,150)">
-          <line x1="0" y1="-12" x2="0" y2="12" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-          <line x1="-12" y1="0" x2="12" y2="0" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
-          <line x1="-8" y1="-8" x2="8" y2="8" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.35" />
-          <line x1="8" y1="-8" x2="-8" y2="8" stroke="white" strokeWidth="0.8" strokeLinecap="round" opacity="0.35" />
-          <circle cx="0" cy="0" r="3" fill="white" opacity="0.9" />
+        <g className="hatch-play">
+          <circle cx="178" cy="174" r="42" fill="#99ffcc" stroke="#000" strokeWidth="2.5" />
+          <path d="M166 152 L204 174 L166 196 Z" fill="#000" />
         </g>
+        <g className="hatch-mascot">
+          <path d="M258 196 C303 176 344 198 344 239 C344 278 307 298 268 282 L239 300 L248 268 C222 235 229 208 258 196 Z" fill="#7bbbff" stroke="#000" strokeWidth="2.5" />
+          <path d="M252 225 C246 206 257 191 277 187" fill="none" stroke="#ff99cc" strokeWidth="9" strokeLinecap="round" />
+          <path d="M317 190 C337 194 347 211 340 231" fill="none" stroke="#ff99cc" strokeWidth="9" strokeLinecap="round" />
+          <circle cx="278" cy="239" r="4" fill="#000" />
+          <path d="M308 236 C316 230 325 232 330 240" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" />
+          <path d="M286 260 C297 269 312 269 324 258" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" />
+        </g>
+        <circle cx="38" cy="42" r="6" fill="#ff99cc" />
+        <circle cx="318" cy="70" r="8" fill="#ffcc99" />
+        <circle cx="310" cy="286" r="6" fill="#99ffcc" />
       </svg>
-
-      {/* Floating stat chips around the orb */}
-      <div className="absolute top-4 right-[-20px] glass-panel rounded-xl px-3 py-2 text-xs font-bold text-emerald-400 border border-emerald-500/20 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-        <span className="block text-[10px] text-slate-500 font-normal">ATS Score</span>
+      <div className="absolute top-5 right-0 hatch-stat-chip animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <span>ATS Score</span>
         92/100
       </div>
-      <div className="absolute bottom-8 left-[-24px] glass-panel rounded-xl px-3 py-2 text-xs font-bold text-pink-400 border border-pink-500/20 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-        <span className="block text-[10px] text-slate-500 font-normal">Match Rate</span>
+      <div className="absolute bottom-7 left-0 hatch-stat-chip hatch-stat-chip-peach animate-fade-in" style={{ animationDelay: '0.5s' }}>
+        <span>Match Rate</span>
         87%
-      </div>
-      <div className="absolute top-1/2 left-[-32px] glass-panel rounded-xl px-3 py-2 text-xs font-bold text-purple-400 border border-purple-500/20 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-        <span className="block text-[10px] text-slate-500 font-normal">Skills</span>
-        24 Found
       </div>
     </div>
   );
@@ -248,7 +137,20 @@ interface Resume {
   };
 }
 
+type ActiveTab = "landing" | "dashboard" | "ats" | "leaderboard" | "jobs" | "career" | "interviews" | "chatbot" | "admin";
+
 export default function App() {
+  // Theme state with localStorage persistence
+  const [theme, setTheme] = useState<'dark' | 'hatch'>(() => {
+    const saved = localStorage.getItem('ats-theme');
+    return (saved as 'dark' | 'hatch') || 'hatch';
+  });
+
+  // Update localStorage when theme changes
+  useEffect(() => {
+    localStorage.setItem('ats-theme', theme);
+  }, [theme]);
+  
   // Session / Authentication state
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -278,7 +180,7 @@ export default function App() {
   });
 
   // UI state
-  const [activeTab, setActiveTab] = useState<"landing" | "dashboard" | "ats" | "leaderboard" | "jobs" | "career" | "interviews" | "chatbot" | "admin">("landing");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("landing");
   const [isLoading, setIsLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState({ type: "", text: "" });
 
@@ -382,8 +284,19 @@ export default function App() {
       ]);
       const sData = await statsRes.json();
       const tData = await trendRes.json();
-      setStats(sData);
-      setAnalyticsData(tData);
+      setStats({
+        totalUsers: sData?.totalUsers ?? 0,
+        totalResumes: sData?.totalResumes ?? 0,
+        totalATSAnalyses: sData?.totalATSAnalyses ?? 0,
+        mostCommonSkills: Array.isArray(sData?.mostCommonSkills) ? sData.mostCommonSkills : [],
+        mostRecommendedJobs: Array.isArray(sData?.mostRecommendedJobs) ? sData.mostRecommendedJobs : [],
+        userActivity: Array.isArray(sData?.userActivity) ? sData.userActivity : []
+      });
+      setAnalyticsData({
+        scoreCategories: Array.isArray(tData?.scoreCategories) ? tData.scoreCategories : [],
+        skillDemand: Array.isArray(tData?.skillDemand) ? tData.skillDemand : [],
+        qualityTrends: Array.isArray(tData?.qualityTrends) ? tData.qualityTrends : []
+      });
     } catch (e) {
       console.error(e);
     }
@@ -593,6 +506,22 @@ export default function App() {
     setIsDragOver(false);
     const files = e.dataTransfer.files;
     if (files.length > 0) {
+      const file = files[0];
+      setUploadFileName(file.name);
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (evt.target?.result) {
+          setUploadTextContent(evt.target.result as string);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  // Handle standard file input selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
       const file = files[0];
       setUploadFileName(file.name);
       const reader = new FileReader();
@@ -992,8 +921,38 @@ export default function App() {
     }
   };
 
+  const navigateToTab = (tabId: ActiveTab) => {
+    setActiveTab(tabId);
+
+    if (tabId === "dashboard") {
+      fetchStats();
+      fetchResumes();
+    }
+
+    if (tabId === "ats" && !activeResume && resumes.length > 0) {
+      setActiveResume(resumes[0]);
+    }
+
+    if (tabId === "leaderboard") {
+      if (!activeResume && resumes.length > 0) setActiveResume(resumes[0]);
+      if (selectedResumeIds.length === 0 && resumes.length > 0) {
+        setSelectedResumeIds(resumes.slice(0, 3).map((resume) => resume.id));
+      }
+    }
+
+    if (tabId === "jobs") {
+      fetchVacancies();
+      fetchRecommendations();
+      fetchCompanies();
+    }
+
+    if (tabId === "admin") {
+      fetchStats();
+    }
+  };
+
   return (
-    <div className={`min-h-screen bg-[#0c020a] text-slate-100 flex ${isSidebarLayout ? "h-screen overflow-hidden" : "flex-col"} font-sans relative selection:bg-pink-500/30 selection:text-pink-200`}>
+    <div className={`min-h-screen flex ${isSidebarLayout ? "h-screen overflow-hidden" : "flex-col"} font-sans relative selection:bg-pink-500/30 selection:text-pink-200 ${theme === 'hatch' ? 'hatch-theme' : 'bg-[#0c020a] text-slate-100'}`}>
       
       {/* Animated Background — particles, blobs, grid */}
       <AnimatedBackground />
@@ -1185,10 +1144,10 @@ export default function App() {
                 const isActive = activeTab === tab.id;
                 return (
                   <button
+                    type="button"
                     key={tab.id}
                     onClick={() => {
-                      setActiveTab(tab.id as any);
-                      if (tab.id === "dashboard") fetchStats();
+                      navigateToTab(tab.id as ActiveTab);
                     }}
                     className={`w-full px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3.5 transition-all duration-205 text-left cursor-pointer ${
                       isActive 
@@ -1205,24 +1164,37 @@ export default function App() {
           </div>
 
           {/* Sidebar User profile card */}
-          <div className="p-4 border-t border-pink-500/10 bg-[#0a0108]/60 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <img 
-                src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} 
-                alt="Avatar" 
-                className="h-9 w-9 rounded-xl object-cover border border-pink-500/20 shrink-0" 
-              />
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-200 truncate leading-tight">{currentUser.name}</p>
-                <p className="text-[10px] text-slate-500 truncate leading-none mt-1 font-mono">{currentUser.email}</p>
+          <div className="p-4 border-t border-pink-500/10 bg-[#0a0108]/60 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <img 
+                  src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} 
+                  alt="Avatar" 
+                  className="h-9 w-9 rounded-xl object-cover border border-pink-500/20 shrink-0" 
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-200 truncate leading-tight">{currentUser.name}</p>
+                  <p className="text-[10px] text-slate-500 truncate leading-none mt-1 font-mono">{currentUser.email}</p>
+                </div>
               </div>
+              <button 
+                onClick={handleLogout} 
+                className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all shrink-0 cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
             <button 
-              onClick={handleLogout} 
-              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all shrink-0 cursor-pointer"
-              title="Sign Out"
+              onClick={() => setTheme(theme === 'dark' ? 'hatch' : 'dark')} 
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-[#0a0108]/40 hover:bg-[#0a0108]/80 transition-all cursor-pointer border border-pink-500/10"
+              title="Toggle Theme"
             >
-              <LogOut className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <Palette className="h-3.5 w-3.5 text-pink-400" />
+                <span>Switch Theme</span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-500 uppercase">{theme === 'dark' ? 'Dark' : 'Hatch'}</span>
             </button>
           </div>
         </aside>
@@ -1290,10 +1262,18 @@ export default function App() {
             </div>
 
             <nav className="flex items-center gap-3">
+              <button 
+                onClick={() => setTheme(theme === 'dark' ? 'hatch' : 'dark')} 
+                className="p-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer"
+                title="Toggle Theme"
+              >
+                <Palette className="h-4 w-4" />
+              </button>
               {currentUser ? (
                 <>
                   <button 
-                    onClick={() => { setActiveTab("dashboard"); fetchStats(); }}
+                    type="button"
+                    onClick={() => navigateToTab("dashboard")}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                       activeTab === "dashboard" ? "text-pink-400 bg-pink-500/10 border border-pink-500/20" : "text-slate-300 hover:text-white"
                     }`}
@@ -1302,7 +1282,8 @@ export default function App() {
                   </button>
                   
                   <button 
-                    onClick={() => setActiveTab("ats")}
+                    type="button"
+                    onClick={() => navigateToTab("ats")}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                       activeTab === "ats" ? "text-pink-400 bg-pink-500/10 border border-pink-500/20" : "text-slate-300 hover:text-white"
                     }`}
@@ -1311,7 +1292,8 @@ export default function App() {
                   </button>
 
                   <button 
-                    onClick={() => setActiveTab("jobs")}
+                    type="button"
+                    onClick={() => navigateToTab("jobs")}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                       activeTab === "jobs" ? "text-pink-400 bg-pink-500/10 border border-pink-500/20" : "text-slate-300 hover:text-white"
                     }`}
@@ -1394,7 +1376,8 @@ export default function App() {
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-8">
                       {currentUser ? (
                         <button 
-                          onClick={() => setActiveTab("dashboard")}
+                          type="button"
+                          onClick={() => navigateToTab("dashboard")}
                           className="px-8 py-4 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-pink-600/25 hover:shadow-pink-600/40 hover:-translate-y-0.5"
                         >
                           Go to Dashboard →
@@ -1433,7 +1416,7 @@ export default function App() {
                   </div>
 
                   {/* Right: 3D Orb */}
-                  <div className="flex-shrink-0 hidden md:flex items-center justify-center">
+                  <div className="flex-shrink-0 flex items-center justify-center w-full lg:w-auto">
                     <Animated3DOrb />
                   </div>
                 </div>
@@ -1580,30 +1563,47 @@ export default function App() {
                         <input 
                           value={uploadFileName}
                           onChange={(e) => setUploadFileName(e.target.value)}
+                          placeholder="e.g. My_Resume.pdf"
                           className="w-full glass-card-inset/80 text-xs border border-pink-500/10 rounded-xl px-3 py-2 text-white"
                         />
                       </div>
                       <div>
                         <label className="text-[10px] items-center text-slate-400 font-bold block uppercase tracking-widest mb-1">Intake format</label>
-                        <span className="bg-[#1a0516]/65 text-[11px] select-none text-pink-400 px-3 py-2 border border-pink-500/20 rounded-xl block font-bold font-mono">TEXT_PDF_DOCX</span>
+                        <div className="flex gap-1.5 py-1.5">
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono shadow-sm">.PDF</span>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono shadow-sm">.DOCX</span>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono shadow-sm">.TXT</span>
+                        </div>
                       </div>
                     </div>
 
+                    {/* HIDDEN FILE INPUT FOR CLICK TO BROWSE */}
+                    <input
+                      type="file"
+                      id="resume-file-picker"
+                      className="hidden"
+                      accept=".txt,.pdf,.docx,.doc"
+                      onChange={handleFileSelect}
+                    />
+
                     {/* DRAG AND DROP AREA */}
-                    <div 
+                    <div
                       onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                       onDragLeave={() => setIsDragOver(false)}
                       onDrop={handleFileDrop}
-                      className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
-                        isDragOver ? "bg-[#1a0516]/65/60 border-indigo-500/70" : "glass-card-inset/50 border-pink-500/10 hover:border-pink-500/20"
+                      onClick={() => document.getElementById("resume-file-picker")?.click()}
+                      className={`futuristic-dropzone text-center transition-all cursor-pointer ${
+                        isDragOver ? "drag-active" : ""
                       }`}
                     >
-                      <Upload className="h-10 w-10 text-pink-400 mx-auto mb-3" />
-                      <p className="text-xs font-semibold text-slate-200">Drag & Drop Your Resume Here</p>
-                      <p className="text-[10px] text-slate-400 font-mono mt-1">Supports .txt, .pdf, .docx files or paste text below.</p>
+                      <Upload className="h-10 w-10 text-pink-400 mx-auto mb-3 animate-float-gentle" />
+                      <p className="text-xs font-semibold text-slate-200">
+                        Drag & Drop Your Resume or <span className="text-pink-400 underline decoration-pink-500/35 hover:text-pink-300">Browse Files</span>
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-mono mt-1.5">Supports PDF, DOCX, TXT formats (auto-extracts text)</p>
                       
-                      <div className="h-[1px] bg-[#1a0516]/65 my-4 max-w-xs mx-auto"></div>
-                      <span className="text-[11px] font-bold text-pink-400 hover:underline">Or paste text below ↓</span>
+                      <div className="h-[1px] bg-gradient-to-r from-transparent via-pink-500/15 to-transparent my-3.5 max-w-xs mx-auto"></div>
+                      <span className="text-[10px] font-bold text-pink-400/80 hover:text-pink-400 transition-colors uppercase tracking-widest font-mono">Or paste text below ↓</span>
                     </div>
 
                     <div>
@@ -1620,10 +1620,10 @@ export default function App() {
 
                     <button 
                       type="submit"
-                      className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg hover:shadow-indigo-600/10 flex items-center justify-center gap-2"
+                      className="btn-shimmer w-full py-3 bg-gradient-to-r from-pink-600 via-fuchsia-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg hover:shadow-pink-500/20 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Sparkles className="h-4 w-4 text-sky-300" />
-                      <span>🔍 Analyze My Resume</span>
+                      <span>Analyze My Resume</span>
                     </button>
                   </form>
                 )}
@@ -1654,42 +1654,47 @@ export default function App() {
                     resumes.map(r => {
                       const isChecked = selectedResumeIds.includes(r.id);
                       return (
-                        <div key={r.id} className="glass-card-inset p-4 rounded-xl border border-pink-500/10 flex flex-col justify-between hover:border-pink-500/20 relative">
+                        <div key={r.id} className="glowing-card glass-card-inset p-5 rounded-xl border border-pink-500/10 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-[#12020e]/60 to-[#090108]/90 group">
                           
                           {/* Checked badge */}
-                          <div className="absolute top-4 right-4 flex items-center gap-2">
-                            <span className={`text-[10px] font-mono font-bold border px-2 py-0.5 rounded-md ${getScoreColor(r.atsReport.score)}`}>
+                          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+                            <span className={`text-[10px] font-mono font-bold border px-2 py-0.5 rounded-md shadow-sm ${getScoreColor(r.atsReport.score)}`}>
                               ATS {r.atsReport.score}
                             </span>
                             <input 
                               type="checkbox"
                               checked={isChecked}
                               onChange={() => toggleResumeSelection(r.id)}
-                              className="h-4.5 w-4.5 rounded border-pink-500/10 text-indigo-600 focus:ring-0 cursor-pointer"
+                              className="h-4.5 w-4.5 rounded border-pink-500/25 text-indigo-600 focus:ring-0 cursor-pointer"
                               title="Select for comparison"
                             />
                           </div>
 
                           <div>
-                            <p className="text-white font-bold text-sm leading-tight pr-14">{r.parsedData.fullName || r.fileName}</p>
-                            <p className="text-[11px] text-slate-400 font-mono mt-1 mb-2 max-w-[200px] truncate">{r.parsedData.email || r.fileName}</p>
+                            <div className="flex items-start gap-2.5">
+                              <FileText className="h-4 w-4 text-pink-400 mt-0.5 shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <p className="text-white font-extrabold text-sm leading-tight pr-14 truncate group-hover:text-pink-400 transition-colors">{r.parsedData.fullName || r.fileName}</p>
+                                <p className="text-[10px] text-slate-400 font-mono mt-1 mb-2 max-w-[200px] truncate">{r.parsedData.email || r.fileName}</p>
+                              </div>
+                            </div>
                             
-                            <div className="flex flex-wrap gap-1 mb-3">
+                            <div className="flex flex-wrap gap-1.5 mb-3 mt-1">
                               {r.parsedData.skills.slice(0, 4).map((s, idx) => (
-                                <span key={idx} className="bg-[#130310]/60 border border-purple-500/15 px-1.5 py-0.5 rounded text-[10px] text-slate-400 font-mono">{s}</span>
+                                <span key={idx} className="bg-purple-950/20 border border-purple-500/15 px-2 py-0.5 rounded text-[9px] text-purple-300 font-mono shadow-sm">{s}</span>
                               ))}
                               {r.parsedData.skills.length > 4 && (
-                                <span className="text-[9px] text-pink-400 self-center font-mono font-bold">+{r.parsedData.skills.length - 4}</span>
+                                <span className="text-[9px] text-pink-400 self-center font-mono font-bold bg-pink-500/5 px-1.5 py-0.5 rounded border border-pink-500/10">+{r.parsedData.skills.length - 4}</span>
                               )}
                             </div>
                           </div>
 
-                          <div className="border-t border-pink-500/10 pt-3 mt-1 flex items-center justify-between">
-                            <span className="text-[10px] text-slate-500 font-mono">Uploaded: {new Date(r.uploadedAt).toLocaleDateString()}</span>
+                          <div className="border-t border-pink-500/10 pt-3.5 mt-2 flex items-center justify-between">
+                            <span className="text-[9px] text-slate-500 font-mono">Uploaded: {new Date(r.uploadedAt).toLocaleDateString()}</span>
                             <div className="flex gap-2">
                               <button 
                                 onClick={() => { setActiveResume(r); setActiveTab("ats"); }}
-                                className="px-2 py-1 text-[10px] font-bold text-pink-400 bg-pink-500/5 hover:from-pink-500 hover:to-purple-500/10 rounded-md transition-colors border border-pink-500/10"
+                                className="px-2.5 py-1 text-[10px] font-bold text-pink-400 bg-pink-500/5 hover:bg-pink-500/15 rounded-md transition-colors border border-pink-500/15 cursor-pointer shadow-sm"
                               >
                                 View Analytics
                               </button>
@@ -1715,49 +1720,57 @@ export default function App() {
                   Use these AI tools to boost your career.
                 </p>
 
-                <div className="flex flex-col gap-2 mt-4">
-                  <button onClick={() => { setActiveTab("career"); }} className="p-3 w-full rounded-xl bg-[#130310]/60/60 border border-pink-500/10 hover:border-pink-500/20 text-left flex items-center justify-between transition-all group">
+                <div className="flex flex-col gap-2.5 mt-4">
+                  <button onClick={() => { setActiveTab("career"); }} className="w-full rounded-xl bg-gradient-to-r from-[#170515]/80 to-[#12020e]/60 border border-pink-500/10 hover:border-pink-500/30 text-left flex items-center justify-between p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/5 group cursor-pointer">
                     <div className="flex items-center gap-3">
-                      <BookOpen className="h-4.5 w-4.5 text-pink-400" />
+                      <div className="h-9 w-9 rounded-lg bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center shadow-inner group-hover:bg-pink-500/20 transition-all shrink-0">
+                        <BookOpen className="h-4.5 w-4.5" />
+                      </div>
                       <div>
-                        <p className="text-xs font-semibold text-white group-hover:text-pink-400">Roadmap / Skill Gap Analyzer</p>
-                        <p className="text-[10px] text-slate-500">Plan milestones step-by-step</p>
+                        <p className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors">Roadmap / Skill Gap Analyzer</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Plan milestones step-by-step</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-500" />
+                    <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-pink-400 group-hover:translate-x-1 transition-all" />
                   </button>
 
-                  <button onClick={() => { setActiveTab("chatbot"); }} className="p-3 w-full rounded-xl bg-[#130310]/60/60 border border-pink-500/10 hover:border-pink-500/20 text-left flex items-center justify-between transition-all group">
+                  <button onClick={() => { setActiveTab("chatbot"); }} className="w-full rounded-xl bg-gradient-to-r from-[#170515]/80 to-[#12020e]/60 border border-pink-500/10 hover:border-pink-500/30 text-left flex items-center justify-between p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/5 group cursor-pointer">
                     <div className="flex items-center gap-3">
-                      <MessageSquare className="h-4.5 w-4.5 text-fuchsia-400" />
+                      <div className="h-9 w-9 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center shadow-inner group-hover:bg-fuchsia-500/20 transition-all shrink-0">
+                        <MessageSquare className="h-4.5 w-4.5" />
+                      </div>
                       <div>
-                        <p className="text-xs font-semibold text-white group-hover:text-pink-400">AI Career Coach</p>
-                        <p className="text-[10px] text-slate-500">Instant feedback 24/7</p>
+                        <p className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors">AI Career Coach</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Instant feedback 24/7</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-500" />
+                    <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-pink-400 group-hover:translate-x-1 transition-all" />
                   </button>
 
-                  <button onClick={() => { setActiveTab("interviews"); }} className="p-3 w-full rounded-xl bg-[#130310]/60/60 border border-pink-500/10 hover:border-pink-500/20 text-left flex items-center justify-between transition-all group">
+                  <button onClick={() => { setActiveTab("interviews"); }} className="w-full rounded-xl bg-gradient-to-r from-[#170515]/80 to-[#12020e]/60 border border-pink-500/10 hover:border-pink-500/30 text-left flex items-center justify-between p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/5 group cursor-pointer">
                     <div className="flex items-center gap-3">
-                      <Video className="h-4.5 w-4.5 text-rose-400" />
+                      <div className="h-9 w-9 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center shadow-inner group-hover:bg-rose-500/20 transition-all shrink-0">
+                        <Video className="h-4.5 w-4.5" />
+                      </div>
                       <div>
-                        <p className="text-xs font-semibold text-white group-hover:text-pink-400">Mock Interview Station</p>
-                        <p className="text-[10px] text-slate-500">Verify reply confidence levels</p>
+                        <p className="text-xs font-semibold text-white group-hover:text-pink-300 transition-colors">Mock Interview Station</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Verify reply confidence levels</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-500" />
+                    <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-pink-400 group-hover:translate-x-1 transition-all" />
                   </button>
 
-                  <button onClick={() => { setActiveTab("admin"); }} className="p-3 w-full rounded-xl bg-[#130310]/60/60 border border-purple-500/15 hover:border-pink-500/20 text-left flex items-center justify-between transition-all group">
+                  <button onClick={() => { setActiveTab("admin"); }} className="w-full rounded-xl bg-gradient-to-r from-[#170515]/80 to-[#12020e]/60 border border-purple-500/15 hover:border-pink-500/30 text-left flex items-center justify-between p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-pink-500/5 group cursor-pointer">
                     <div className="flex items-center gap-3">
-                      <BarChart3 className="h-4.5 w-4.5 text-emerald-400" />
+                      <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-inner group-hover:bg-emerald-500/20 transition-all shrink-0">
+                        <BarChart3 className="h-4.5 w-4.5" />
+                      </div>
                       <div>
-                        <p className="text-xs font-semibold text-white group-hover:text-pink-400 font-mono text-emerald-400">SysAdmin Core Trends</p>
-                        <p className="text-[10px] text-slate-500">ATS database aggregates</p>
+                        <p className="text-xs font-semibold text-emerald-400 group-hover:text-pink-300 transition-colors">SysAdmin Core Trends</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">ATS database aggregates</p>
                       </div>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-slate-500" />
+                    <ChevronRight className="h-4 w-4 text-slate-500 group-hover:text-pink-400 group-hover:translate-x-1 transition-all" />
                   </button>
                 </div>
               </div>
@@ -1773,33 +1786,46 @@ export default function App() {
                 </p>
 
                 {currentUser && (
-                  <div className="glass-card-inset p-3 rounded-xl border border-purple-500/15 flex flex-col gap-2">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-slate-400">Email:</span>
-                      <span className="text-white font-mono">{currentUser.email}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-slate-400">Status:</span>
-                      {currentUser.isVerified ? (
-                        <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">Verified ✓</span>
-                      ) : (
-                        <button 
-                          onClick={async () => {
-                            try {
-                              const res = await fetch("/api/auth/verify-email", {
-                                method: "POST",
-                                headers: { "Authorization": `Bearer ${sessionToken}` }
-                              });
-                              const data = await res.json();
-                              setCurrentUser({...currentUser, isVerified: true});
-                              alert(data.message);
-                            } catch (e) { console.error(e); }
-                          }}
-                          className="text-[10px] text-pink-400 hover:underline"
-                        >
-                          Simulate Verify Link
-                        </button>
+                  <div className="glass-card-inset p-4 rounded-xl border border-purple-500/15 flex items-center gap-4">
+                    <div className="relative shrink-0">
+                      <img
+                        src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"}
+                        alt="Avatar"
+                        className="h-12 w-12 rounded-xl object-cover border-2 border-pink-500/25 shadow-md"
+                      />
+                      {currentUser.isVerified && (
+                        <span className="absolute -bottom-1 -right-1 h-4.5 w-4.5 bg-emerald-500 border-2 border-[#12030f] rounded-full flex items-center justify-center text-[9px] text-white font-bold pulse-verified" title="Verified">✓</span>
                       )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-white leading-snug">{currentUser.name || "Alex Rivera"}</h4>
+                      <p className="text-[10px] text-slate-400 font-mono truncate leading-none mt-1">{currentUser.email}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        {currentUser.isVerified ? (
+                          <span className="text-[9px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5 shadow-sm">
+                            <Check className="h-2.5 w-2.5" />
+                            Verified Candidate
+                          </span>
+                        ) : (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch("/api/auth/verify-email", {
+                                  method: "POST",
+                                  headers: { "Authorization": `Bearer ${sessionToken}` }
+                                });
+                                const data = await res.json();
+                                setCurrentUser({...currentUser, isVerified: true});
+                                alert(data.message);
+                              } catch (e) { console.error(e); }
+                            }}
+                            className="text-[9px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded-full hover:bg-amber-500/20 transition-all cursor-pointer"
+                          >
+                            Verify Profile
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
