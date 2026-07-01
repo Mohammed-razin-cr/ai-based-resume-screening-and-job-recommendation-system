@@ -915,7 +915,7 @@ export default function App() {
       case "interviews":
         return "Compiling specialized AI mock interview question stream...";
       case "chatbot":
-        return "Processing career query with Google Gemini AI models...";
+        return "Processing career query with AI models...";
       default:
         return "Scanning candidate data & executing neural models...";
     }
@@ -1224,7 +1224,7 @@ export default function App() {
                 <Key className="h-3.5 w-3.5 text-pink-400" />
                 <span className="hidden md:inline">AI Engine:</span>
                 {secretsConfig.hasKey ? (
-                  <span className="text-pink-400">Gemini AI Active ✓</span>
+                  <span className="text-pink-400">AI Active ✓</span>
                 ) : (
                   <span className="text-slate-400">Basic Mode</span>
                 )}
@@ -1255,7 +1255,7 @@ export default function App() {
               <Key className="h-3.5 w-3.5 text-pink-400" />
               <span>AI Engine:</span>
               {secretsConfig.hasKey ? (
-                <span className="text-pink-400 font-bold">Gemini AI Active ✓</span>
+                <span className="text-pink-400 font-bold">AI Active ✓</span>
               ) : (
                 <span className="text-slate-400 font-mono">Basic Mode</span>
               )}
@@ -1361,7 +1361,7 @@ export default function App() {
                   <div className="flex-1 text-center lg:text-left">
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-950/20 border border-pink-500/10 text-xs text-pink-400 font-semibold mb-6">
                       <Sparkles className="h-3.5 w-3.5" />
-                      <span>Powered by Google Gemini AI</span>
+                      <span>Powered by AI</span>
                     </div>
                     
                     <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-white mb-6 leading-none">
