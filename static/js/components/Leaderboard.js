@@ -50,7 +50,7 @@ export function Leaderboard({ resumeIds, onBackToDashboard }) {
 
   return (
     <div class="space-y-8 animate-fadeIn">
-      <!-- Back Header -->
+      {/* Back Header */}
       <div class="flex items-center justify-between border-b border-slate-900 pb-4">
         <button
           onClick={onBackToDashboard}
@@ -72,7 +72,7 @@ export function Leaderboard({ resumeIds, onBackToDashboard }) {
 
       {data && (
         <div class="space-y-8Data">
-          <!-- Analytical Insights -->
+          {/* Analytical Insights */}
           <div class="p-6 bg-gradient-to-r from-slate-900 via-indigo-950/20 to-slate-900 border border-indigo-500/20 rounded-2xl space-y-3 shadow-xl">
             <h3 class="text-sm font-bold font-display text-indigo-300 uppercase tracking-wider">Algorithmic Benchmarking Insights</h3>
             
@@ -104,7 +104,7 @@ export function Leaderboard({ resumeIds, onBackToDashboard }) {
             </div>
           </div>
 
-          <!-- Leaderboard Bench -->
+          {/* Leaderboard Bench */}
           <div class="space-y-4">
             <h4 class="text-md font-bold font-display text-slate-200">Comparative Standings Matrix</h4>
             
@@ -116,7 +116,7 @@ export function Leaderboard({ resumeIds, onBackToDashboard }) {
 
                 return (
                   <div key={cand.id} class={`p-6 border rounded-2xl relative overflow-hidden flex flex-col justify-between ${rankColor}`}>
-                    <!-- Ribbon Rank -->
+                    {/* Ribbon Rank */}
                     <span class="absolute top-4 right-4 text-xs font-mono font-bold bg-slate-950 px-2.5 py-1 border border-slate-900 rounded-lg text-slate-400">
                       Rank #{cand.rank || index + 1}
                     </span>

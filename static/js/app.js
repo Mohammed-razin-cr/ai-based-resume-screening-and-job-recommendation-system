@@ -80,7 +80,7 @@ function App() {
 
   return (
     <div class="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100">
-      <!-- High contrast responsive navigation rail -->
+      {/* High contrast responsive navigation rail */}
       <nav class="bg-slate-900/60 border-b border-slate-800/80 custom-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-16">
@@ -94,7 +94,7 @@ function App() {
                 </span>
               </span>
 
-              <!-- Tab Navigation selectors -->
+              {/* Tab Navigation selectors */}
               <div class="hidden md:flex space-x-1">
                 <button
                   onClick={() => setNavTab('dashboard')}
@@ -147,9 +147,9 @@ function App() {
               </div>
             </div>
 
-            <!-- Profile Info & logout -->
+            {/* Profile Info & logout */}
             <div class="flex items-center gap-3 sm:gap-4">
-              <!-- Theme Toggle Action -->
+              {/* Theme Toggle Action */}
               <button
                 onClick={toggleTheme}
                 class="p-2.5 rounded-xl border border-slate-800 hover:bg-indigo-500/10 hover:text-indigo-400 text-slate-400 transition"
@@ -180,7 +180,7 @@ function App() {
         </div>
       </nav>
 
-      <!-- Main container panel -->
+      {/* Main container panel */}
       <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative z-10">
         {navTab === 'dashboard' && (
           <Dashboard
@@ -210,7 +210,7 @@ function App() {
         {navTab === 'builder' && <ResumeBuilder />}
       </main>
 
-      <!-- Mini footer -->
+      {/* Mini footer */}
       <footer class="border-t border-slate-900 text-center py-6 text-[10px] font-mono text-slate-600 block">
         AI Talent Platform • Powered by SQLite rel-db, Pandas analytical series & Gemini NLP engines.
       </footer>

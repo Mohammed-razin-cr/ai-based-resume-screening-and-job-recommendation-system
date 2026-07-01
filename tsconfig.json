@@ -22,5 +22,11 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "static",
+    "templates",
+    "node_modules",
+    ".venv"
+  ]
 }

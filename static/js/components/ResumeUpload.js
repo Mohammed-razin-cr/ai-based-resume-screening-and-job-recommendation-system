@@ -72,7 +72,7 @@ B.S. in Computer Science - Stanford University (2022)`);
 
   return (
     <div class="space-y-8 animate-fadeIn">
-      <!-- Breadcrumb / Header -->
+      {/* Breadcrumb / Header */}
       <div class="flex items-center justify-between border-b border-slate-900 pb-4">
         <button
           onClick={onBackToDashboard}
@@ -87,7 +87,7 @@ B.S. in Computer Science - Stanford University (2022)`);
 
       {!activeReport ? (
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <!-- Form Submission Panel -->
+          {/* Form Submission Panel */}
           <div class="lg:col-span-2 space-y-6">
             <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl">
               <h2 class="text-lg font-bold font-display text-slate-200">Process Candidate Profile</h2>
@@ -144,7 +144,7 @@ B.S. in Computer Science - Stanford University (2022)`);
             </div>
           </div>
 
-          <!-- Feature Description Sidebar -->
+          {/* Feature Description Sidebar */}
           <div class="space-y-6">
             <div class="p-6 bg-slate-900/20 border border-slate-800/80 rounded-2xl">
               <h3 class="text-xs font-bold font-mono uppercase text-indigo-400 tracking-wider">Algorithmic Pillars</h3>
@@ -175,9 +175,9 @@ B.S. in Computer Science - Stanford University (2022)`);
           </div>
         </div>
       ) : (
-        <!-- Comprehensive ATS Score Report Presentation -->
+      {/* Comprehensive ATS Score Report Presentation */}
         <div class="space-y-8 animate-fadeIn">
-          <!-- Candidate Information Ribbon -->
+          {/* Candidate Information Ribbon */}
           <div class="bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900/40 p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
             <div>
               <span class="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
@@ -202,15 +202,15 @@ B.S. in Computer Science - Stanford University (2022)`);
             </button>
           </div>
 
-          <!-- Score Metrics Dashboard -->
+          {/* Score Metrics Dashboard */}
           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Global Circular Gauge -->
+            {/* Global Circular Gauge */}
             <div class="p-6 bg-slate-900/60 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
               <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none"></div>
               <p class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-4">Cumulative ATS Score</p>
               
               <div class="relative flex items-center justify-center w-28 h-28">
-                <!-- SVG Circle representation -->
+                {/* SVG Circle representation */}
                 <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path
                     class="text-slate-800"
@@ -241,7 +241,7 @@ B.S. in Computer Science - Stanford University (2022)`);
               </span>
             </div>
 
-            <!-- Supporting score dimensions -->
+            {/* Supporting score dimensions */}
             <div class="md:col-span-3 p-6 bg-slate-900/30 border border-slate-800/80 rounded-2xl flex flex-col justify-between">
               <h3 class="text-xs font-mono uppercase text-slate-400 tracking-wider mb-4">ATS Parsing Diagnostics</h3>
               
@@ -290,7 +290,7 @@ B.S. in Computer Science - Stanford University (2022)`);
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Suggested Bullet rewrites (Aesthetic changes) -->
+            {/* Suggested Bullet rewrites (Aesthetic changes) */}
             <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl space-y-4">
               <h3 class="text-sm font-semibold font-display text-slate-300">Suggested Action-Oriented Rewrites</h3>
               <p class="text-xs text-slate-500">Suggested modifications to convert passive expressions into quantitative impact phrases.</p>
@@ -314,9 +314,9 @@ B.S. in Computer Science - Stanford University (2022)`);
               </div>
             </div>
 
-            <!-- Missing skills and development roadmap -->
+            {/* Missing skills and development roadmap */}
             <div class="space-y-6">
-              <!-- Missing keywords / skills -->
+              {/* Missing keywords / skills */}
               <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl">
                 <h3 class="text-sm font-semibold font-display text-slate-300 mb-2">Parser Gap Detections</h3>
                 <p class="text-xs text-slate-500 mb-4">Skills and terminology requested frequently by target job roles but not localized on this CV.</p>
@@ -346,7 +346,7 @@ B.S. in Computer Science - Stanford University (2022)`);
                 </div>
               </div>
 
-              <!-- Recommendation Improvement Roadmap -->
+              {/* Recommendation Improvement Roadmap */}
               <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl">
                 <h3 class="text-sm font-semibold font-display text-slate-300 mb-4">Improvement Checklist</h3>
                 <div class="space-y-3">

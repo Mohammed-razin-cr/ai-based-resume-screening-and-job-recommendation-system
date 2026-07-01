@@ -109,7 +109,7 @@ export function Roadmap() {
         </div>
       ) : (
         <div class="space-y-8 animate-fadeIn">
-          <!-- Back trigger inside results -->
+          {/* Back trigger inside results */}
           <div class="flex justify-end">
             <button
               onClick={() => setRoadmap(null)}
@@ -119,7 +119,7 @@ export function Roadmap() {
             </button>
           </div>
 
-          <!-- Basic Roadmap details ribbon -->
+          {/* Basic Roadmap details ribbon */}
           <div class="p-6 bg-gradient-to-r from-purple-950/20 via-slate-900 to-slate-900/40 border border-slate-800 rounded-2xl">
             <span class="text-[9px] font-mono font-bold bg-purple-500/10 text-purple-400 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               Profile report Map
@@ -148,9 +148,9 @@ export function Roadmap() {
             </div>
           </div>
 
-          <!-- 30-60-90 Day Milestones Plan layout -->
+          {/* 30-60-90 Day Milestones Plan layout */}
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- 30 Days block -->
+            {/* 30 Days block */}
             <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-slate-700/80 transition">
               <div class="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>
               <span class="text-[10px] font-mono text-indigo-400 uppercase tracking-widest font-bold">Phase 1: Foundations</span>
@@ -166,7 +166,7 @@ export function Roadmap() {
               </div>
             </div>
 
-            <!-- 60 Days block -->
+            {/* 60 Days block */}
             <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-slate-700/80 transition">
               <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
               <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest font-bold">Phase 2: Core Optimization</span>
@@ -182,7 +182,7 @@ export function Roadmap() {
               </div>
             </div>
 
-            <!-- 90 Days block -->
+            {/* 90 Days block */}
             <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl relative overflow-hidden group hover:border-slate-700/80 transition">
               <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
               <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">Phase 3: Authority & Scaling</span>
@@ -199,7 +199,7 @@ export function Roadmap() {
             </div>
           </div>
 
-          <!-- Structured Resources panel -->
+          {/* Structured Resources panel */}
           <div class="p-6 bg-slate-900/30 border border-slate-800/80 rounded-2xl">
             <h4 class="text-xs font-mono uppercase text-slate-400 tracking-wider mb-4">Curated Academy Resources</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">

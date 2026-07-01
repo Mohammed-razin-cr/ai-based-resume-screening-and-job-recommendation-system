@@ -90,7 +90,7 @@ export function Dashboard({ onUploadClick, onBatchCompareClick, onResumeClick, o
 
   return (
     <div class="space-y-8 animate-fadeIn">
-      <!-- Welcome Panel -->
+      {/* Welcome Panel */}
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-8 bg-gradient-to-tr from-slate-900 via-slate-900/40 to-indigo-950/20 rounded-3xl border border-slate-800/80 shadow-lg">
         <div>
           <h1 class="text-3xl font-extrabold font-display text-slate-100 tracking-tight">Talent Bench</h1>
@@ -112,7 +112,7 @@ export function Dashboard({ onUploadClick, onBatchCompareClick, onResumeClick, o
         </div>
       </div>
 
-      <!-- Live Statistics (Aggregated dynamically via Pandas) -->
+      {/* Live Statistics (Aggregated dynamically via Pandas) */}
       {stats && (
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl flex items-center justify-between">
@@ -157,7 +157,7 @@ export function Dashboard({ onUploadClick, onBatchCompareClick, onResumeClick, o
         </div>
       )}
 
-      <!-- Trending Candidate Skills (Pandas series value counts) -->
+      {/* Trending Candidate Skills (Pandas series value counts) */}
       {stats && stats.mostCommonSkills && stats.mostCommonSkills.length > 0 && (
         <div class="p-6 bg-slate-900/30 border border-slate-800/80 rounded-2xl">
           <div class="flex items-center justify-between mb-4">
@@ -180,7 +180,7 @@ export function Dashboard({ onUploadClick, onBatchCompareClick, onResumeClick, o
         </div>
       )}
 
-      <!-- Resume Indices Grid -->
+      {/* Resume Indices Grid */}
       <div class="space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

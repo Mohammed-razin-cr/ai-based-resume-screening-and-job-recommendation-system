@@ -51,10 +51,10 @@ export function CareerCoach() {
 
   return (
     <div class="space-y-6 flex flex-col h-full min-h-[500px] max-h-[700px] p-6 bg-slate-900/40 border border-slate-800 rounded-3xl animate-fadeIn relative">
-      <!-- Background glow -->
+      {/* Background glow */}
       <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 via-transparent to-transparent pointer-events-none rounded-3xl"></div>
 
-      <!-- Header panel -->
+      {/* Header panel */}
       <div class="flex items-center justify-between border-b border-slate-800 pb-4 relative z-10">
         <div>
           <h2 class="text-sm font-bold font-display text-slate-100 flex items-center gap-2">
@@ -68,7 +68,7 @@ export function CareerCoach() {
         </span>
       </div>
 
-      <!-- Conversation Container -->
+      {/* Conversation Container */}
       <div class="flex-1 overflow-y-auto pr-2 space-y-4 relative z-10 min-h-[300px]">
         {messages.map((m) => (
           <div
@@ -102,7 +102,7 @@ export function CareerCoach() {
         <div ref={bottomRef} />
       </div>
 
-      <!-- Action Footer input -->
+      {/* Action Footer input */}
       <form onSubmit={handleSend} class="flex gap-2 relative z-10 border-t border-slate-800 pt-4">
         <input
           type="text"

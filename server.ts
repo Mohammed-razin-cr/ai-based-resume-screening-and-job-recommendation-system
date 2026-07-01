@@ -9,7 +9,7 @@ import mongoose, { Schema } from "mongoose";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 
 app.use(express.json({ limit: "25mb" }));
 
@@ -26,7 +26,7 @@ const UserSchema = new Schema({
   avatar: { type: String },
   createdAt: { type: String, default: () => new Date().toISOString() }
 });
-const UserModel = mongoose.model("User", UserSchema);
+const _UserModel = mongoose.model("User", UserSchema);
 
 const ResumeSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -60,7 +60,7 @@ const ResumeSchema = new Schema({
     suggestedRewrites: [{ Section: String, Before: String, After: String }]
   }
 });
-const ResumeModel = mongoose.model("Resume", ResumeSchema);
+const _ResumeModel = mongoose.model("Resume", ResumeSchema);
 
 const ChatMessageSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -69,7 +69,7 @@ const ChatMessageSchema = new Schema({
   message: { type: String, required: true },
   timestamp: { type: String, default: () => new Date().toISOString() }
 });
-const ChatMessageModel = mongoose.model("ChatMessage", ChatMessageSchema);
+const _ChatMessageModel = mongoose.model("ChatMessage", ChatMessageSchema);
 
 const SavedJobSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -82,7 +82,7 @@ const SavedJobSchema = new Schema({
   type: { type: String },
   link: { type: String }
 });
-const SavedJobModel = mongoose.model("SavedJob", SavedJobSchema);
+const _SavedJobModel = mongoose.model("SavedJob", SavedJobSchema);
 
 const CoverLetterSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -91,7 +91,7 @@ const CoverLetterSchema = new Schema({
   content: { type: String, required: true },
   generatedAt: { type: String, default: () => new Date().toISOString() }
 });
-const CoverLetterModel = mongoose.model("CoverLetter", CoverLetterSchema);
+const _CoverLetterModel = mongoose.model("CoverLetter", CoverLetterSchema);
 
 const InterviewPrepSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -108,7 +108,7 @@ const InterviewPrepSchema = new Schema({
   }],
   timestamp: { type: String, default: () => new Date().toISOString() }
 });
-const InterviewPrepModel = mongoose.model("InterviewPrep", InterviewPrepSchema);
+const _InterviewPrepModel = mongoose.model("InterviewPrep", InterviewPrepSchema);
 
 const SkillGapReportSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -124,7 +124,190 @@ const SkillGapReportSchema = new Schema({
   },
   createdAt: { type: String, default: () => new Date().toISOString() }
 });
-const SkillGapReportModel = mongoose.model("SkillGapReport", SkillGapReportSchema);
+const _SkillGapReportModel = mongoose.model("SkillGapReport", SkillGapReportSchema);
+
+// ---------------------------------------------------------
+// LOCAL FILE DATABASE FALLBACK SYSTEM
+// ---------------------------------------------------------
+import * as fsLib from "fs";
+
+let useLocalDB = false;
+const LOCAL_DB_PATH = path.join(process.cwd(), "db.json");
+let localDBData: DatabaseSchema = {
+  users: [],
+  resumes: [],
+  chats: [],
+  jobs: [],
+  coverLetters: [],
+  interviews: [],
+  skillGaps: []
+};
+
+function loadLocalDB() {
+  if (fsLib.existsSync(LOCAL_DB_PATH)) {
+    try {
+      localDBData = JSON.parse(fsLib.readFileSync(LOCAL_DB_PATH, "utf8"));
+      console.log("✓ Loaded local database from db.json");
+      return;
+    } catch (e) {
+      console.error("Error parsing db.json, re-initializing:", e);
+    }
+  }
+  localDBData = getSeededDB();
+  saveLocalDB();
+  console.log("✓ Initialized local database with seed data");
+}
+
+function saveLocalDB() {
+  try {
+    fsLib.writeFileSync(LOCAL_DB_PATH, JSON.stringify(localDBData, null, 2), "utf8");
+  } catch (e) {
+    console.error("Error saving local database:", e);
+  }
+}
+
+function getNestedValue(obj: any, pathStr: string) {
+  return pathStr.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
+
+function matchQuery(item: any, query: any): boolean {
+  if (!query) return true;
+  for (const key in query) {
+    if (query.hasOwnProperty(key)) {
+      let val = query[key];
+      const itemVal = getNestedValue(item, key);
+      if (val && typeof val === "object" && !Array.isArray(val) && !(val instanceof RegExp)) {
+        if ("$in" in val) {
+          const arr = val.$in;
+          if (Array.isArray(arr)) {
+            if (Array.isArray(itemVal)) {
+              if (!itemVal.some(v => arr.includes(v))) return false;
+            } else {
+              if (!arr.includes(itemVal)) return false;
+            }
+          }
+        } else if ("$gt" in val) {
+          if (!(itemVal > val.$gt)) return false;
+        } else if ("$lt" in val) {
+          if (!(itemVal < val.$lt)) return false;
+        } else if ("$gte" in val) {
+          if (!(itemVal >= val.$gte)) return false;
+        } else if ("$lte" in val) {
+          if (!(itemVal <= val.$lte)) return false;
+        }
+      } else {
+        if (itemVal !== val) return false;
+      }
+    }
+  }
+  return true;
+}
+
+function createModelWrapper<T>(mongoModel: any, collectionKey: keyof DatabaseSchema) {
+  return {
+    async find(query: any = {}) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        return items.filter(item => matchQuery(item, query));
+      }
+      return await mongoModel.find(query);
+    },
+
+    async findOne(query: any = {}) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        return items.find(item => matchQuery(item, query)) || null;
+      }
+      return await mongoModel.findOne(query);
+    },
+
+    async create(doc: any) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        if (Array.isArray(doc)) {
+          items.push(...doc);
+        } else {
+          items.push(doc);
+        }
+        saveLocalDB();
+        return doc;
+      }
+      return await mongoModel.create(doc);
+    },
+
+    async deleteOne(query: any = {}) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        const idx = items.findIndex(item => matchQuery(item, query));
+        if (idx !== -1) {
+          items.splice(idx, 1);
+          saveLocalDB();
+          return { deletedCount: 1 };
+        }
+        return { deletedCount: 0 };
+      }
+      return await mongoModel.deleteOne(query);
+    },
+
+    async deleteMany(query: any = {}) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        const initialLen = items.length;
+        const remaining = items.filter(item => !matchQuery(item, query));
+        localDBData[collectionKey] = remaining as any;
+        saveLocalDB();
+        return { deletedCount: initialLen - remaining.length };
+      }
+      return await mongoModel.deleteMany(query);
+    },
+
+    async countDocuments(query: any = {}) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        return items.filter(item => matchQuery(item, query)).length;
+      }
+      return await mongoModel.countDocuments(query);
+    },
+
+    async updateOne(query: any, update: any) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        const item = items.find(item => matchQuery(item, query));
+        if (item) {
+          const setFields = update.$set || update;
+          Object.assign(item, setFields);
+          saveLocalDB();
+          return { modifiedCount: 1 };
+        }
+        return { modifiedCount: 0 };
+      }
+      return await mongoModel.updateOne(query, update);
+    },
+
+    async findByIdAndUpdate(id: string, update: any, options: any = {}) {
+      if (useLocalDB) {
+        let items = localDBData[collectionKey] as any[];
+        const item = items.find(item => item.id === id || item._id === id);
+        if (item) {
+          const setFields = update.$set || update;
+          Object.assign(item, setFields);
+          saveLocalDB();
+          return item;
+        }
+        return null;
+      }
+      return await mongoModel.findByIdAndUpdate(id, update, options);
+    }
+  };
+}
+
+const UserModel = createModelWrapper(_UserModel, "users");
+const ResumeModel = createModelWrapper(_ResumeModel, "resumes");
+const ChatMessageModel = createModelWrapper(_ChatMessageModel, "chats");
+const SavedJobModel = createModelWrapper(_SavedJobModel, "jobs");
+const CoverLetterModel = createModelWrapper(_CoverLetterModel, "coverLetters");
+const InterviewPrepModel = createModelWrapper(_InterviewPrepModel, "interviews");
+const SkillGapReportModel = createModelWrapper(_SkillGapReportModel, "skillGaps");
 
 // ---------------------------------------------------------
 // DATABASE & SESSION ENGINE (TypeScript Interfaces)
@@ -1204,7 +1387,7 @@ app.post("/api/career/roadmap", async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    await SkillGapReportModel.create(subReport);
+    await SkillGapReportModel.create(subReport as any);
 
     return res.json({ report: subReport });
   } catch (err) {
@@ -1477,8 +1660,8 @@ app.post("/api/chatbot/message", async (req, res) => {
   }
 
   try {
-    const msgUser = { id: `chat-${Date.now()}-u`, userId, role: "user", message: text, timestamp: new Date().toISOString() };
-    const msgModel = { id: `chat-${Date.now()}-a`, userId, role: "model", message: aiAnswer, timestamp: new Date().toISOString() };
+    const msgUser = { id: `chat-${Date.now()}-u`, userId, role: "user" as const, message: text, timestamp: new Date().toISOString() };
+    const msgModel = { id: `chat-${Date.now()}-a`, userId, role: "model" as const, message: aiAnswer, timestamp: new Date().toISOString() };
 
     await ChatMessageModel.create(msgUser);
     await ChatMessageModel.create(msgModel);
@@ -1598,7 +1781,7 @@ app.get("/api/analytics/trends", async (req, res) => {
 app.get("/api/dev/secrets-config", (req, res) => {
   res.json({
     hasKey: !!apiKey && apiKey !== "MY_GEMINI_API_KEY",
-    appUrl: process.env.APP_URL || "http://localhost:3000"
+    appUrl: process.env.APP_URL || `http://localhost:${PORT}`
   });
 });
 
@@ -1608,11 +1791,14 @@ app.get("/api/dev/secrets-config", (req, res) => {
 async function startServer() {
   console.log("Connecting to MongoDB...");
   try {
+    mongoose.set('bufferCommands', false);
     await mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/resume_screening");
     console.log("Connected to MongoDB successfully!");
     await seedDatabaseIfEmpty();
   } catch (err) {
-    console.error("MongoDB connection failed:", err);
+    console.error("MongoDB connection failed, falling back to local file database:", err);
+    useLocalDB = true;
+    loadLocalDB();
   }
 
   if (process.env.NODE_ENV !== "production") {

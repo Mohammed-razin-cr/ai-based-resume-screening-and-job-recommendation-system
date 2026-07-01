@@ -8,10 +8,24 @@ import sqlite3
 from datetime import datetime
 from collections import Counter
 from flask import Flask, request, jsonify, g, render_template
+from flask_caching import Cache
+from flask_compress import Compress
 from google import genai
 from google.genai import types
 
 app = Flask(__name__, template_folder="templates", static_folder="static", static_url_path="/static")
+
+# Enable GZIP compression for all responses
+Compress(app)
+
+# Configure caching
+cache_config = {
+    'CACHE_TYPE': 'simple',
+    'CACHE_DEFAULT_TIMEOUT': 300
+}
+app.config.from_mapping(cache_config)
+cache = Cache(app)
+
 DATABASE_PATH = "resume_app.db"
 SCHEMA_PATH = "schema.sql"
 
@@ -53,6 +67,17 @@ def init_db():
                 db.cursor().executescript(f.read())
             db.commit()
             print("Python SQLEngine: Initialized schemas successfully.")
+        
+        # Create indexes for faster queries
+        cursor = db.cursor()
+        try:
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_resumes_user_id ON resumes(user_id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_resumes_ats_score ON resumes(ats_score)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+            db.commit()
+            print("Python SQLEngine: Database indexes created for optimization.")
+        except Exception as e:
+            print(f"Index creation note: {e}")
         
         # Seed users if empty
         cursor = db.cursor()
@@ -141,7 +166,11 @@ def get_user_id_from_headers():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    response = jsonify(render_template("index.html")) if False else None
+    if response is None:
+        # Return HTML directly to bypass JSON serialization
+        return render_template("index.html")
+    return response
 
 @app.route("/api/auth/register", methods=["POST"])
 def auth_register():
@@ -398,6 +427,7 @@ def resume_upload():
 # ANALYTICS ENGINE UTILIZING PANDAS
 # ---------------------------------------------------------
 @app.route("/api/admin/stats", methods=["GET"])
+@cache.cached(timeout=120)
 def admin_stats():
     """Uses Python standard library to parse user database logs and return rich descriptive analytics."""
     db = get_db()
@@ -555,6 +585,7 @@ Candidate Professional"""
 
 # --- JOB VACANCY LISTS ---
 @app.route("/api/jobs/vacancies", methods=["GET"])
+@cache.cached(timeout=180)
 def job_vacancies():
     db = get_db()
     cursor = db.cursor()
@@ -575,6 +606,7 @@ def job_vacancies():
     return jsonify({"vacancies": vac_list})
 
 @app.route("/api/jobs/companies", methods=["GET"])
+@cache.cached(timeout=180)
 def list_companies():
     companies_data = [
         {"name": "Vercel", "count": 14, "logo": "⚡"},
@@ -649,7 +681,28 @@ def mock_evaluate():
         "weaknesses": ["Missed detailing explicit framework dependencies", "Could expand on data testing results metrics"]
     })
 
+# ---------------------------------------------------------
+# PERFORMANCE OPTIMIZATION: Response Headers and Caching
+# ---------------------------------------------------------
+@app.after_request
+def add_cache_headers(response):
+    """Add cache control headers to optimize client-side caching"""
+    if request.method == 'GET':
+        if request.path.startswith('/static/') or request.path.endswith('.js') or request.path.endswith('.css'):
+            # Cache static assets for 7 days
+            response.headers['Cache-Control'] = 'public, max-age=604800'
+        elif 'api' in request.path:
+            # API responses - cache based on endpoint
+            if any(x in request.path for x in ['/vacancies', '/companies', '/stats']):
+                response.headers['Cache-Control'] = 'public, max-age=300'
+            else:
+                response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    return response
+
 if __name__ == "__main__":
     init_db()
     print("Starting Flask Backend server running on port 3000...")
+    print("Performance Optimizations Active: Response Caching, Compression, Database Indexes")
     app.run(host="0.0.0.0", port=3000, debug=True)

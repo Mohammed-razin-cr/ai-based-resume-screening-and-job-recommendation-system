@@ -80,7 +80,7 @@ export function Interview() {
 
       {currentQ && (
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <!-- Question & Input Form -->
+          {/* Question & Input Form */}
           <div class="md:col-span-2 space-y-6">
             <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl relative overflow-hidden">
               <span class="absolute top-4 right-4 text-[10px] font-mono text-slate-500">
@@ -131,7 +131,7 @@ export function Interview() {
             </div>
           </div>
 
-          <!-- Evaluation Report Sidebar -->
+          {/* Evaluation Report Sidebar */}
           <div class="space-y-6">
             {!feedback ? (
               <div class="p-6 bg-slate-900/20 border border-slate-800 rounded-2xl h-full flex flex-col items-center justify-center text-center text-slate-500 min-h-[300px]">

@@ -64,7 +64,7 @@ export function Auth({ onAuthSuccess, theme, onToggleTheme }) {
 
   return (
     <div class="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      <!-- Theme Toggle in upper right corner of Auth Screen -->
+      {/* Theme Toggle in upper right corner of Auth Screen */}
       {onToggleTheme && (
         <div class="absolute top-6 right-6 z-50">
           <button
@@ -77,7 +77,7 @@ export function Auth({ onAuthSuccess, theme, onToggleTheme }) {
         </div>
       )}
 
-      <!-- Background Ambient Glow -->
+      {/* Background Ambient Glow */}
       <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
